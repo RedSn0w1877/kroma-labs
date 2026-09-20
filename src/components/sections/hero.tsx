@@ -10,6 +10,8 @@ import type { Vec3 } from "@/components/three/keyboard-scene";
 import { CornerTicks, SheetMark } from "@/components/brand/sheet-mark";
 import { useScrollTo } from "@/components/providers/smooth-scroll";
 import { EASE_OUT } from "@/components/ui/reveal";
+import { useMedia } from "@/lib/use-media";
+import { useNearView } from "@/lib/use-near-view";
 
 const LINE_ONE = ["Machined", "from", "solid", "billet."];
 const LINE_TWO = ["Tuned", "for", "a", "quieter", "strike."];
@@ -72,6 +74,9 @@ function KineticLine({
 export function Hero() {
   const section = useRef<HTMLElement>(null);
   const scrollTo = useScrollTo();
+  const stage = useRef<HTMLDivElement>(null);
+  const wide = useMedia("(min-width: 1024px)");
+  const near = useNearView(stage);
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
   const copyY = useTransform(scrollYProgress, [0, 1], [0, -90]);
 
@@ -142,12 +147,12 @@ export function Hero() {
           </dl>
         </motion.div>
 
-        <div className="relative h-[60vh] min-h-[380px] border-t border-hairline lg:sticky lg:top-16 lg:col-span-6 lg:h-[calc(100svh-4rem)] lg:self-start lg:border-l lg:border-t-0 xl:col-span-7">
+        <div ref={stage} className="relative h-[60vh] min-h-[380px] border-t border-hairline lg:sticky lg:top-16 lg:col-span-6 lg:h-[calc(100svh-4rem)] lg:self-start lg:border-l lg:border-t-0 xl:col-span-7">
           <CornerTicks />
           <p className="absolute left-6 top-6 z-10 font-mono text-[10px] uppercase tracking-[0.2em] text-metric">
             Fig. 01 — Assembled, 7.2° typing angle
           </p>
-          <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} parallax={0.35} />
+          {wide || near ? <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} parallax={0.35} /> : null}
           <p className="pointer-events-none absolute bottom-3 left-6 font-mono text-[10px] uppercase tracking-[0.2em] text-metric/70">
             Drag to rotate
           </p>

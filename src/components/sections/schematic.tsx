@@ -8,6 +8,8 @@ import { explodeStore } from "@/lib/explode-store";
 import { LazyKeyboardScene } from "@/components/three/lazy-keyboard-scene";
 import type { Vec3 } from "@/components/three/keyboard-scene";
 import { CornerTicks, SheetMark } from "@/components/brand/sheet-mark";
+import { useMedia } from "@/lib/use-media";
+import { useNearView } from "@/lib/use-near-view";
 
 const CAMERA: Vec3 = [3.7, 2.9, 6.1];
 const TARGET: Vec3 = [0, 1, 0];
@@ -35,6 +37,10 @@ const CALLOUTS = [
 
 export function Schematic() {
   const section = useRef<HTMLElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  // Desktop keeps both scenes live; a phone only mounts the one on screen.
+  const wide = useMedia("(min-width: 1024px)");
+  const near = useNearView(stage);
 
   useGSAP(
     () => {
@@ -111,12 +117,14 @@ export function Schematic() {
           </div>
         </div>
 
-        <div className="relative min-h-0 lg:col-span-7 lg:border-l lg:border-hairline xl:col-span-8">
+        <div ref={stage} className="relative min-h-0 lg:col-span-7 lg:border-l lg:border-hairline xl:col-span-8">
           <CornerTicks />
           <p className="absolute right-6 top-6 z-10 font-mono text-[10px] uppercase tracking-[0.2em] text-metric">
             Fig. 02 — Exploded, Y-axis
           </p>
-          <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} explode={explodeStore} parallax={0.18} />
+          {wide || near ? (
+            <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} explode={explodeStore} parallax={0.18} />
+          ) : null}
         </div>
       </div>
     </section>

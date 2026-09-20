@@ -73,7 +73,7 @@ export function SiteNav() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-9 w-9 items-center justify-center border border-hairline text-chalk md:hidden"
+            className="flex h-11 w-11 items-center justify-center border border-hairline text-chalk md:hidden"
           >
             {open ? <X aria-hidden className="h-4 w-4" /> : <Menu aria-hidden className="h-4 w-4" />}
           </button>
