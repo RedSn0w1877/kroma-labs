@@ -5,6 +5,7 @@
 import Lenis from "lenis";
 import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useMedia } from "@/lib/use-media";
 
 type ScrollTarget = string | HTMLElement | number;
 type ScrollTo = (target: ScrollTarget, options?: { offset?: number }) => void;
@@ -17,12 +18,12 @@ export const useScrollTo = () => useContext(SmoothScrollContext);
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const smooth = useMedia("(pointer: fine) and (prefers-reduced-motion: no-preference)");
 
   useEffect(() => {
-    // Respect OS-level "reduce motion": keep native scrolling, ScrollTrigger still works.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!smooth) return;
 
-    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true, anchors: true, autoToggle: true });
     lenisRef.current = lenis;
 
     // Every Lenis scroll tells ScrollTrigger to re-measure, so pins/scrubs stay in sync.
@@ -38,7 +39,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, []);
+  }, [smooth]);
 
   const scrollTo = useCallback<ScrollTo>((target, options) => {
     const offset = options?.offset ?? NAV_OFFSET;

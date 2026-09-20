@@ -2,7 +2,7 @@
 
 // © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.
 
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { explodeStore } from "@/lib/explode-store";
 import { LazyKeyboardScene } from "@/components/three/lazy-keyboard-scene";
@@ -41,49 +41,56 @@ export function Schematic() {
   // Desktop keeps both scenes live; a phone only mounts the one on screen.
   const wide = useMedia("(min-width: 1024px)");
   const near = useNearView(stage);
+  const [exploded, setExploded] = useState(false);
+  const pinned = useMedia("(min-width: 1024px) and (prefers-reduced-motion: no-preference)");
+  const manualExplode = useMemo(() => ({ value: exploded ? 1 : 0 }), [exploded]);
 
   useGSAP(
     () => {
-      const callouts = gsap.utils.toArray<HTMLElement>("[data-callout]");
-      gsap.set(callouts, { opacity: 0.22 });
+      const media = gsap.matchMedia();
+      media.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+        const callouts = gsap.utils.toArray<HTMLElement>("[data-callout]");
+        gsap.set(callouts, { opacity: 0.22 });
 
-      // Timeline positions are in "timeline seconds"; scrub maps them onto scroll distance.
-      const timeline = gsap.timeline({
-        defaults: { ease: "power2.inOut" },
-        scrollTrigger: {
-          trigger: section.current,
-          start: "top top",
-          end: "+=260%",
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
+        // Timeline positions are in "timeline seconds"; scrub maps them onto scroll distance.
+        const timeline = gsap.timeline({
+          defaults: { ease: "power2.inOut" },
+          scrollTrigger: {
+            trigger: section.current,
+            start: "top top",
+            end: "+=260%",
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        timeline.to("[data-progress]", { scaleY: 1, ease: "none", duration: 3.4 }, 0);
+        timeline.to(explodeStore, { value: 1, duration: 1.2 }, 0);
+
+        callouts.forEach((callout, i) => {
+          const at = 0.2 + i * 0.45;
+          timeline.to(callout, { opacity: 1, duration: 0.25 }, at);
+          timeline.to(callout.querySelector("[data-rule]"), { scaleX: 1, duration: 0.35 }, at);
+          if (i > 0) timeline.to(callouts[i - 1], { opacity: 0.45, duration: 0.25 }, at);
+        });
+
+        // Reunite the assembly before the pin releases.
+        timeline.to(explodeStore, { value: 0, duration: 1.2 }, 2.2);
+        timeline.to(callouts, { opacity: 0.22, duration: 0.3 }, 2.6);
+
+        return () => {
+          explodeStore.value = 0;
+        };
       });
-
-      timeline.to("[data-progress]", { scaleY: 1, ease: "none", duration: 3.4 }, 0);
-      timeline.to(explodeStore, { value: 1, duration: 1.2 }, 0);
-
-      callouts.forEach((callout, i) => {
-        const at = 0.2 + i * 0.45;
-        timeline.to(callout, { opacity: 1, duration: 0.25 }, at);
-        timeline.to(callout.querySelector("[data-rule]"), { scaleX: 1, duration: 0.35 }, at);
-        if (i > 0) timeline.to(callouts[i - 1], { opacity: 0.45, duration: 0.25 }, at);
-      });
-
-      // Reunite the assembly before the pin releases.
-      timeline.to(explodeStore, { value: 0, duration: 1.2 }, 2.2);
-      timeline.to(callouts, { opacity: 0.22, duration: 0.3 }, 2.6);
-
-      return () => {
-        explodeStore.value = 0;
-      };
+      return () => media.revert();
     },
     { scope: section },
   );
 
   return (
-    <section id="schematic" ref={section} className="relative h-[100svh] overflow-hidden border-b border-hairline bg-carbon">
+    <section id="schematic" ref={section} className="relative overflow-hidden border-b border-hairline bg-carbon lg:motion-safe:h-[100svh]">
       <div className="mx-auto grid h-full max-w-[1440px] grid-rows-[auto_1fr] pt-16 lg:grid-cols-12 lg:grid-rows-1">
         <div className="relative z-10 flex flex-col px-5 pt-6 md:px-10 lg:col-span-5 lg:pb-12 lg:pt-10 xl:col-span-4">
           <SheetMark sheet="02" title="Exploded schematic" />
@@ -94,6 +101,16 @@ export function Schematic() {
               One voicing.
             </span>
           </h2>
+          <button
+            type="button"
+            aria-pressed={exploded}
+            onClick={() => {
+              setExploded((value) => !value);
+            }}
+            className="mt-5 min-h-11 self-start border border-signal px-5 font-mono text-xs uppercase tracking-wider text-signal lg:motion-safe:hidden"
+          >
+            {exploded ? "Reassemble keyboard" : "Explore the six layers"}
+          </button>
 
           <div className="mt-6 flex gap-5 lg:mt-10">
             <div aria-hidden className="relative w-px shrink-0 bg-hairline">
@@ -117,13 +134,13 @@ export function Schematic() {
           </div>
         </div>
 
-        <div ref={stage} className="relative min-h-0 lg:col-span-7 lg:border-l lg:border-hairline xl:col-span-8">
+        <div ref={stage} className="relative mt-8 h-[65svh] min-h-[380px] lg:col-span-7 lg:mt-0 lg:h-auto lg:border-l lg:border-hairline xl:col-span-8">
           <CornerTicks />
           <p className="absolute right-6 top-6 z-10 font-mono text-[10px] uppercase tracking-[0.2em] text-metric">
             Fig. 02 — Exploded, Y-axis
           </p>
           {wide || near ? (
-            <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} explode={explodeStore} parallax={0.18} />
+            <LazyKeyboardScene cameraPosition={CAMERA} target={TARGET} explode={pinned ? explodeStore : manualExplode} parallax={0.18} />
           ) : null}
         </div>
       </div>

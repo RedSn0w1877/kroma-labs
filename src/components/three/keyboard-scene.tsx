@@ -10,6 +10,7 @@ import { useInView } from "motion/react";
 import { KeyboardModel, type ExplodeSource } from "./keyboard-model";
 import { SceneBoundary } from "./scene-boundary";
 import { COPYRIGHT_SHORT } from "@/lib/copyright";
+import { useMedia, usePageVisible } from "@/lib/use-media";
 
 export type Vec3 = readonly [number, number, number];
 
@@ -43,7 +44,10 @@ function CameraRig({ position, target }: { position: Vec3; target: Vec3 }) {
 export default function KeyboardScene({ cameraPosition, target, explode, parallax = 0.3 }: KeyboardSceneProps) {
   const wrapper = useRef<HTMLDivElement>(null);
   // Pause rendering when the canvas is off screen — saves GPU and battery.
-  const inView = useInView(wrapper, { margin: "200px 0px" });
+  const inView = useInView(wrapper, { margin: "60px 0px" });
+  const visible = usePageVisible();
+  const compact = useMedia("(max-width: 767px), (pointer: coarse)");
+  const reduce = useMedia("(prefers-reduced-motion: reduce)");
   const pointer = useRef({ x: 0, y: 0 });
   // Persists across drags: the model stays wherever you leave it, with ambient
   // cursor parallax layered on top once you let go.
@@ -52,15 +56,17 @@ export default function KeyboardScene({ cameraPosition, target, explode, paralla
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
+    if (!inView || !visible || compact || reduce) return;
     const onMove = (event: PointerEvent) => {
       pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       pointer.current.y = -((event.clientY / window.innerHeight) * 2 - 1);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
-  }, []);
+  }, [inView, visible, compact, reduce]);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0) return;
     dragState.current = { dragging: true, lastX: event.clientX, lastY: event.clientY, pointerId: event.pointerId };
     event.currentTarget.setPointerCapture(event.pointerId);
     setDragging(true);
@@ -86,7 +92,7 @@ export default function KeyboardScene({ cameraPosition, target, explode, paralla
   return (
     <div
       ref={wrapper}
-      className="relative h-full w-full touch-none"
+      className="relative h-full w-full touch-pan-y"
       style={{ cursor: dragging ? "grabbing" : "grab" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -95,8 +101,8 @@ export default function KeyboardScene({ cameraPosition, target, explode, paralla
       onPointerLeave={endDrag}
     >
       <Canvas
-        frameloop={inView ? "always" : "never"}
-        dpr={[1, 2]}
+        frameloop={inView && visible ? "always" : "never"}
+        dpr={compact ? [1, 1.25] : [1, 1.5]}
         camera={{ position: [...cameraPosition], fov: 30, near: 0.1, far: 60 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
@@ -106,8 +112,8 @@ export default function KeyboardScene({ cameraPosition, target, explode, paralla
         <directionalLight position={[4, 6, 3]} intensity={1.6} />
         <directionalLight position={[-5, 3, -2]} intensity={0.5} color="#8891a8" />
         <directionalLight position={[-2, 2, -5]} intensity={0.8} color="#ff4400" />
-        <KeyboardModel explode={explode} pointer={pointer} orbit={orbit} parallax={parallax} />
-        <ContactShadows position={[0, -0.02, 0]} opacity={0.65} blur={2.4} scale={9} far={2.5} resolution={512} />
+        <KeyboardModel explode={explode} pointer={pointer} orbit={orbit} parallax={compact || reduce ? 0 : parallax} />
+        <ContactShadows position={[0, -0.02, 0]} opacity={0.65} blur={2.4} scale={9} far={2.5} resolution={compact ? 256 : 512} />
         {/* The HDR map comes from a CDN; if it's blocked, the model still renders with the lights above. */}
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>

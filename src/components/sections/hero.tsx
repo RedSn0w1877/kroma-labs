@@ -77,6 +77,7 @@ export function Hero() {
   const stage = useRef<HTMLDivElement>(null);
   const wide = useMedia("(min-width: 1024px)");
   const near = useNearView(stage);
+  const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
   const copyY = useTransform(scrollYProgress, [0, 1], [0, -90]);
 
@@ -84,12 +85,12 @@ export function Hero() {
     <section id="top" ref={section} className="relative border-b border-hairline pt-16">
       <div className="mx-auto grid max-w-[1440px] lg:min-h-[calc(100svh-4rem)] lg:grid-cols-12">
         <motion.div
-          style={{ y: copyY }}
+          style={wide && !reduce ? { y: copyY } : undefined}
           className="flex flex-col justify-between gap-12 px-5 pb-10 pt-10 md:px-10 lg:col-span-6 lg:pb-12 lg:pt-12 xl:col-span-5"
         >
           <div>
             <SheetMark sheet="01" title="General arrangement" />
-            <p className="mt-10 font-mono text-[11px] uppercase tracking-[0.22em] text-signal">KL-75 / Monolith</p>
+            <p className="mt-10 font-mono text-[11px] uppercase tracking-[0.22em] text-signal">KL-75 / Monolith — Mechanical keyboard</p>
             <h1
               aria-label="Machined from solid billet. Tuned for a quieter strike."
               className="mt-5 font-display text-[clamp(2.5rem,4.8vw,5.25rem)] font-semibold uppercase leading-[0.92] tracking-[-0.03em]"

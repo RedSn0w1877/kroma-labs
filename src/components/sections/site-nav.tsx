@@ -2,7 +2,7 @@
 
 // © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.
 
-import { useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useScrollTo } from "@/components/providers/smooth-scroll";
@@ -18,6 +18,38 @@ const LINKS = [
 export function SiteNav() {
   const scrollTo = useScrollTo();
   const [open, setOpen] = useState(false);
+  const header = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuButton.current?.focus({ preventScroll: true });
+      }
+      if (event.key !== "Tab") return;
+      const controls = Array.from(header.current?.querySelectorAll<HTMLElement>("a[href],button") ?? [])
+        .filter((node) => node.getClientRects().length > 0);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    const media = window.matchMedia("(min-width: 768px)");
+    const onResize = () => { if (media.matches) setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    media.addEventListener("change", onResize);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      media.removeEventListener("change", onResize);
+    };
+  }, [open]);
 
   const onAnchor = (event: MouseEvent<HTMLAnchorElement>) => {
     const href = event.currentTarget.getAttribute("href");
@@ -29,7 +61,8 @@ export function SiteNav() {
 
   return (
     <motion.header
-      initial={{ y: -64 }}
+      ref={header}
+      initial={false}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: EASE_OUT }}
       className="fixed inset-x-0 top-0 z-50 border-b border-hairline bg-carbon/95"
@@ -40,7 +73,7 @@ export function SiteNav() {
           KROMA LABS
         </a>
 
-        <p className="hidden items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-metric sm:flex">
+        <p className="hidden items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-metric xl:flex">
           <span aria-hidden className="block h-1.5 w-1.5 animate-led rounded-full bg-led" />
           Batch 04 — 84/120 claimed
         </p>
@@ -68,6 +101,7 @@ export function SiteNav() {
             <ArrowUpRight aria-hidden className="h-3.5 w-3.5" strokeWidth={2.25} />
           </a>
           <button
+            ref={menuButton}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
