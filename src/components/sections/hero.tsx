@@ -104,9 +104,9 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.9 }}
               className="mt-8 max-w-md text-[15px] leading-relaxed text-metric"
             >
-              Each KL-75 case starts as a 4.6 kg block of 6063-T6 aluminum and leaves the mill at 1.52 kg, cut to
-              ±0.02 mm on every mating face. A PVD brass ballast keeps the center of mass under the home row. A
-              leaf-spring FR4 plate sets the sound.
+              Each KL-75 case starts as a 4.6 kg block of aluminum and leaves the mill at 1.52 kg, cut to within
+              ±0.02 mm on every face that meets another. A brass weight keeps the balance under the home row, and a
+              spring-mounted plate sets the sound.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 12 }}

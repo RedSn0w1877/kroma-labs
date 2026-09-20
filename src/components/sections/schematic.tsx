@@ -18,19 +18,19 @@ const CALLOUTS = [
   {
     index: "01",
     title: "Gasket isolation",
-    body: "Twelve 3.5 mm Poron gaskets hold the plate between the top frame and the case. No screw boss touches the plate, so each keystroke decays into foam instead of ringing through aluminum.",
+    body: "Twelve foam gaskets hold the plate between the top frame and the case. No screw touches the plate, so each keystroke sinks into foam instead of ringing through the aluminum.",
     spec: "Shore 20A Poron / 0.9 mm compression",
   },
   {
     index: "02",
     title: "Brass ballast",
-    body: "A 620 g C360 brass weight with mirror PVD sits 4 mm above the desk. It pulls the center of mass under the home row and adds low-mid body to every bottom-out.",
+    body: "A 620 g polished brass weight sits 4 mm above the desk. It pulls the balance of the board under the home row and adds depth to every keystroke.",
     spec: "620 g C360 / 0.8 µm PVD coat",
   },
   {
     index: "03",
     title: "Hot-swap matrix",
-    body: "Sockets on a 1.6 mm FR4 PCB accept any 3- or 5-pin MX-style switch. Change the voicing of the whole board in minutes, with no soldering iron.",
+    body: "Sockets on the circuit board take any standard MX-style switch. Change the sound of the whole board in minutes, with no soldering iron.",
     spec: "QMK / VIA · 1000 Hz polling · USB-C",
   },
 ] as const;
