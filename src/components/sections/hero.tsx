@@ -163,7 +163,7 @@ export function Hero() {
       <div className="border-t border-hairline">
         <p className="mx-auto max-w-[1440px] px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.24em] text-chalk md:px-10">
           6063 Aluminum <span className="text-signal">{"//"}</span> 7.2° Incline <span className="text-signal">{"//"}</span>{" "}
-          Leaf-spring FR4
+          Spring-mounted plate
         </p>
       </div>
     </section>

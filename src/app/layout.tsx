@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: "%s — KROMA LABS",
   },
   description:
-    "KL-75: a gasket-mounted 75% keyboard machined from 6063-T6 billet aluminum with a PVD brass ballast. A portfolio concept by HVNF Studios.",
+    "KL-75: a 75% mechanical keyboard machined from solid aluminum, with a polished brass weight and a foam-mounted plate. A portfolio concept by HVNF Studios.",
   applicationName: "KROMA LABS",
   authors: [{ name: STUDIO }],
   creator: STUDIO,
