@@ -113,12 +113,7 @@ export default function KeyboardScene({ cameraPosition, target, explode, paralla
         <directionalLight position={[-5, 3, -2]} intensity={0.5} color="#8891a8" />
         <directionalLight position={[-2, 2, -5]} intensity={0.8} color="#ff4400" />
         <KeyboardModel explode={explode} pointer={pointer} orbit={orbit} parallax={compact || reduce ? 0 : parallax} />
-        {/*
-          The shadow pass re-renders the whole board into a depth map every frame,
-          so it costs about as much as the board itself. Half the resolution is
-          invisible under 2.4 of blur, and buys that frame time back.
-        */}
-        <ContactShadows position={[0, -0.02, 0]} opacity={0.65} blur={2.4} scale={9} far={2.5} resolution={compact ? 128 : 256} />
+        <ContactShadows position={[0, -0.02, 0]} opacity={0.65} blur={2.4} scale={9} far={2.5} resolution={compact ? 256 : 512} />
         {/* The HDR map comes from a CDN; if it's blocked, the model still renders with the lights above. */}
         <SceneBoundary fallback={null}>
           <Suspense fallback={null}>
