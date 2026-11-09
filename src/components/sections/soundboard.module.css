@@ -1,0 +1,278 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/*
+ * #sound on the key grid (spec §6.3):
+ *   h2 col 2–10 · intro col 2–8
+ *   the three latching switch keys (2.75u × 1.5u each) · their panel col 2–8
+ *   the test bench at col 11–16, beside them
+ *   the meter col 2–15, 1.5u tall · the type test with its 6.25u spacebar field
+ */
+
+.sound {
+  padding-block: calc(var(--u) * 1.5);
+  align-content: start;
+  row-gap: 0;
+}
+
+.title {
+  grid-column: 2 / 11;
+  grid-row: 1;
+  margin: 0;
+}
+
+.intro {
+  grid-column: 2 / 9;
+  grid-row: 2;
+  margin: calc(var(--u) * 0.25) 0 0;
+}
+
+/* ---- the switch keys: oversized keycaps that latch down when chosen -------------------------------- */
+.tabs {
+  grid-column: 2 / 11;
+  grid-row: 3;
+  display: flex;
+  gap: var(--g);
+  margin-top: calc(var(--u) * 0.6);
+  /* Room for the skirts. */
+  padding-bottom: calc(var(--u) * 0.08);
+}
+
+.switch {
+  width: calc(var(--u) * 2.75 - var(--g));
+  height: calc(var(--u) * 1.5);
+  min-height: 88px;
+  padding: calc(var(--u) * 0.12) calc(var(--u) * 0.16) calc(var(--u) * 0.14);
+  border-radius: calc(var(--u) * 0.12);
+  grid-template-rows: auto 1fr auto;
+  align-content: stretch;
+  text-align: left;
+  --d: max(calc(var(--u) * 0.08), 5px);
+}
+
+/* Latched: the key stays down until another is chosen. */
+.switch[aria-selected="true"] {
+  --d: max(calc(var(--u) * 0.025), 1.5px);
+  transform: translateY(calc(var(--u) * 0.055));
+}
+
+.switchTop {
+  font-size: 0.8125rem;
+}
+
+.switchName {
+  align-self: center;
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 760;
+  font-size: max(calc(var(--u) * 0.4), 1.25rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.switchSub {
+  font-size: 0.8125rem;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.panel {
+  grid-column: 2 / 9;
+  grid-row: 4;
+  margin-top: calc(var(--u) * 0.35);
+}
+
+.panel p {
+  margin: 0;
+}
+
+.facts {
+  margin-top: calc(var(--u) * 0.12) !important;
+  color: var(--ink-soft);
+}
+
+/* ---- the test bench --------------------------------------------------------------------------------- */
+.bench {
+  grid-column: 11 / 17;
+  grid-row: 3 / 5;
+  align-self: start;
+  margin-top: calc(var(--u) * 0.6);
+  display: grid;
+  row-gap: calc(var(--u) * 0.18);
+  align-content: start;
+}
+
+.bench p {
+  margin: 0;
+}
+
+.benchLabel {
+  color: var(--ink-soft);
+}
+
+.testKeys {
+  display: flex;
+  gap: var(--g);
+  padding-bottom: 4px;
+}
+
+.testKey {
+  width: max(calc(var(--u) - var(--g)), 44px);
+  height: max(calc(var(--u) - var(--g)), 44px);
+  justify-items: center;
+  align-content: center;
+  font-size: 0.9375rem;
+}
+
+.hint {
+  color: var(--ink-soft);
+}
+
+.readout {
+  min-height: 1.25em;
+}
+
+.note {
+  color: var(--error);
+}
+
+/* ---- the meter ---------------------------------------------------------------------------------------- */
+.meter {
+  grid-column: 2 / 16;
+  grid-row: 5;
+  margin: calc(var(--u) * 0.6) 0 0;
+}
+
+.meterCaption {
+  margin-top: calc(var(--u) * 0.1);
+  color: var(--ink-soft);
+}
+
+/* ---- the type test ------------------------------------------------------------------------------------ */
+.typing {
+  grid-column: 2 / 16;
+  grid-row: 6;
+  margin-top: calc(var(--u) * 0.6);
+}
+
+.typeLabel {
+  display: block;
+  color: var(--ink-soft);
+}
+
+.target {
+  margin: calc(var(--u) * 0.12) 0 0;
+  font-family: var(--font-ui);
+  font-stretch: 100%;
+  font-weight: 560;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.got {
+  color: var(--ink);
+}
+
+.slip {
+  color: var(--error);
+  text-decoration: underline 2px;
+  text-underline-offset: 0.2em;
+}
+
+.todo {
+  color: var(--ink-soft);
+}
+
+.typeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--u) * 0.18);
+  margin-top: calc(var(--u) * 0.18);
+}
+
+/* The spacebar: 6.25u of cap-cream with a legend-dark bottom edge. */
+.field {
+  width: calc(var(--u) * 6.25 - var(--g));
+  max-width: 100%;
+  height: max(calc(var(--u) * 0.7), 48px);
+  padding: 0 calc(var(--u) * 0.18);
+  border: 0;
+  border-bottom: 2px solid var(--legend);
+  border-radius: 8px 8px 4px 4px;
+  background: var(--cap);
+  color: var(--legend);
+  font: 560 1.0625rem/1 var(--font-ui);
+  font-stretch: 100%;
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.08);
+}
+
+.field:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.clear {
+  height: 48px;
+}
+
+.wpm {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- tablets: the bench moves under the panel --------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .tabs,
+  .panel {
+    grid-column: 2 / 17;
+  }
+  .bench {
+    grid-column: 2 / 17;
+    grid-row: auto;
+  }
+  .switch {
+    width: calc(var(--u) * 3.5 - var(--g));
+  }
+  .switchSub {
+    font-size: 0.75rem;
+  }
+  .meter,
+  .typing {
+    grid-row: auto;
+    grid-column: 2 / 17;
+  }
+}
+
+/* ---- phones: the 8-column grid ----------------------------------------------------------------------- */
+@media (max-width: 639px) {
+  .title,
+  .intro,
+  .tabs,
+  .panel,
+  .bench,
+  .meter,
+  .typing {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .switch {
+    width: calc(var(--u) * 2.5 - var(--g));
+    height: auto;
+    min-height: 96px;
+    padding-inline: 10px;
+  }
+  /* "mineral" over "45 g" rather than a wrap after the dot. */
+  .dot {
+    display: none;
+  }
+  .weight {
+    display: block;
+  }
+  .bench {
+    margin-top: calc(var(--u) * 0.5);
+  }
+  .field {
+    width: 100%;
+  }
+}

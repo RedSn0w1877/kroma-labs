@@ -1,0 +1,1 @@
+{"_copyright":"© 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.","w":1600,"h":1000,"layers":[{"id":"keycaps","dy":33.83},{"id":"switches","dy":28.08},{"id":"plate","dy":20.95},{"id":"pcb","dy":16.5},{"id":"brass","dy":11.59},{"id":"case","dy":0}],"overlay":{"id":"lip","dy":0,"above":"switches","below":"keycaps"}}

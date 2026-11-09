@@ -1,0 +1,236 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/* #build (spec §6.6). Desktop: heading, intro and form on columns 2–8; the preview on 9–16, sticky 1u
+   from the top (render across all eight columns, then the mirror on 9–12 and the brass on 13–16).
+   Below 1024px the preview sits above the form and nothing is sticky. */
+
+.build {
+  padding-block: calc(var(--u) * 1.5);
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+}
+.title { grid-column: 2 / 9; grid-row: 1; margin: 0; }
+.intro { grid-column: 2 / 9; grid-row: 2; margin: calc(var(--u) * 0.25) 0 0; color: var(--ink-soft); }
+
+/* ---- preview ------------------------------------------------------------------------------------------ */
+.preview {
+  grid-column: 9 / 17;
+  grid-row: 1 / 4;
+  position: sticky;
+  top: min(var(--u), calc(100svh - var(--aside-h, 0px) - 16px));
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: calc(var(--u) * 0.3);
+  align-items: start;
+}
+.board { grid-column: 1 / -1; position: relative; aspect-ratio: 1200 / 700; }
+.render { position: absolute; inset: 0; opacity: 0; }
+.render[data-on] { opacity: 1; }
+.render img { display: block; width: 100%; height: 100%; }
+/* The swap crossfade: only ever after the new image has decoded. */
+@media (prefers-reduced-motion: no-preference) {
+  .render { transition: opacity 240ms linear; }
+}
+
+/* The mirror: a live, cream stub with the printer's slot under it; tickets feed out of the slot. */
+.printer { grid-column: 1 / 5; }
+.mirror { padding: 16px 18px 18px; border-radius: calc(var(--u) * 0.12) calc(var(--u) * 0.12) 4px 4px; }
+.mirrorHead { margin: 0; color: var(--ink-soft); }
+.code,
+.lines,
+.ships { font-family: var(--font-ui); font-stretch: 100%; }
+.code {
+  margin: 6px 0 10px;
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-size: clamp(1.125rem, calc(var(--u) * 0.31), 2rem);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.lines { margin: 0; display: grid; row-gap: 3px; font-size: 0.8125rem; line-height: 1.35; font-weight: 500; }
+.lines > div { display: grid; grid-template-columns: 6.2em 1fr; column-gap: 8px; }
+.lines dt { color: var(--ink-soft); }
+.lines dd { margin: 0; overflow-wrap: anywhere; }
+.ships { margin: 10px 0 0; color: var(--ink-soft); }
+.slot {
+  height: 10px;
+  margin: 8px -8px 0;
+  border-radius: 5px;
+  background: #141414;
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.28);
+}
+/* Clip only the top (the slot's mouth), so the paper's shadow still falls on the mat below. */
+.feed { margin: -5px 4px 0; clip-path: inset(0 -24px -48px -24px); }
+
+/* The brass close-up and its engraving, placed from kl75-brass.json. Sizes come from the box's own
+   width (cqi), so the text keeps the render's cap height at every column width. */
+.brass {
+  grid-column: 5 / 9;
+  position: relative;
+  margin: 0;
+  container-type: inline-size;
+  border-radius: calc(var(--u) * 0.08);
+  overflow: clip;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.1), 0 14px 26px -18px rgb(0 0 0 / 0.6);
+}
+.brass img { display: block; width: 100%; height: auto; }
+.engrave {
+  --cap-ratio: 0.73;
+  position: absolute;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-ui);
+  font-stretch: 100%;
+  font-weight: 560;
+  font-size: calc(var(--cap-h) * 100cqi * 0.58333 / var(--cap-ratio));
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  /* Filled like the baked corner mark: dark enamel in the cut, with the cut's lower lip catching the band. */
+  color: rgb(23 19 15 / 0.86);
+  text-shadow: 0 1px 0 rgb(255 240 205 / 0.5);
+  pointer-events: none;
+}
+.engrave[data-empty] span { opacity: 0.5; }
+
+/* ---- form --------------------------------------------------------------------------------------------- */
+.form {
+  grid-column: 2 / 9;
+  grid-row: 3;
+  margin-top: calc(var(--u) * 0.6);
+  display: grid;
+  row-gap: calc(var(--u) * 0.45);
+}
+.set { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; row-gap: 10px; }
+.set > legend { padding: 0; margin-bottom: 12px; }
+
+.opt { position: relative; display: inline-grid; }
+/* The native radio stays the control: invisible, but it covers its key, takes the clicks and the focus,
+   and arrows between its siblings. */
+.radio {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.radio:focus-visible + * { outline: 3px solid var(--ink); outline-offset: 5px; }
+
+/* Mat: 1u felt swatches. */
+.swatches { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 0.3); }
+.swatchOpt { display: grid; justify-items: center; row-gap: 8px; border-radius: 10px; }
+.felt {
+  width: max(44px, var(--u));
+  height: max(44px, var(--u));
+  border-radius: calc(var(--u) * 0.1);
+  /* A fabric sample on a cream mount, so the swatch that matches the page (yolk on yolk) still reads. */
+  border: 4px solid var(--cap);
+  background: var(--swatch) url("../../assets/felt-256.webp") 0 0 / 256px 256px repeat;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14), 0 3px 8px -3px rgb(0 0 0 / 0.4);
+  transition: box-shadow 110ms cubic-bezier(0, 0, 0.2, 1);
+}
+.radio:checked + .swatchOpt .felt {
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14), 0 0 0 3px var(--mat), 0 0 0 5px var(--ink), 0 3px 8px -3px rgb(0 0 0 / 0.4);
+}
+
+/* Case, keycaps, switch: latching keycaps. The chosen key stays down and turns graphite. */
+.keys { display: flex; flex-wrap: wrap; gap: var(--g); }
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  min-width: calc(var(--u) * 1.5);
+  padding: 8px 14px 9px;
+  font-size: 0.875rem;
+}
+.opt:hover .key { filter: brightness(1.04); }
+.radio:checked + .key {
+  --face: var(--graphite);
+  --skirt: var(--graphite-skirt);
+  --fg: var(--cap);
+  --d: 1.5px;
+  --ps: 0.13;
+  transform: translateY(2.5px);
+  transition-duration: 60ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+.chip {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: linear-gradient(155deg, color-mix(in srgb, var(--chip) 62%, white) 0%, var(--chip) 48%, color-mix(in srgb, var(--chip) 80%, black) 100%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
+}
+.trio { display: inline-flex; gap: 3px; flex: none; }
+.trio i { width: 13px; height: 13px; border-radius: 3px; background: var(--c); box-shadow: 0 2px 0 rgb(0 0 0 / 0.28), 0 0 0 1px rgb(255 255 255 / 0.22); }
+.sub { display: block; margin-top: 2px; font-size: 0.75rem; opacity: 0.75; }
+
+/* Text fields: cap-cream, a spacebar wide (6.25u), with a legend-coloured bottom edge. */
+.field { display: grid; row-gap: 8px; justify-items: start; }
+.input {
+  width: min(100%, calc(var(--u) * 6.25 - var(--g)));
+  height: 48px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--cap);
+  color: var(--legend);
+  box-shadow: inset 0 -2px 0 var(--legend);
+  font: 500 1rem/1 var(--font-ui);
+  font-stretch: 100%;
+}
+.input[aria-invalid="true"] { box-shadow: inset 0 -3px 0 #8E2213; }
+.help { margin: 0; color: var(--ink-soft); }
+.error { margin: 0; color: var(--error); text-transform: none; }
+
+.consent {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  column-gap: 12px;
+  align-items: start;
+  max-width: 60ch;
+  font: 400 0.9375rem/1.5rem var(--font-text);
+  cursor: pointer;
+}
+.consentLinks { display: flex; flex-wrap: wrap; column-gap: 20px; margin: -6px 0 0 34px; }
+.consentLinks a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 2px; }
+.consent input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--ink); cursor: pointer; }
+
+.order { display: grid; justify-items: start; row-gap: 14px; padding-top: calc(var(--u) * 0.2); scroll-margin-top: var(--u); }
+.hint { margin: 0; }
+.submit { min-height: max(calc(var(--u) * 0.8), 52px); }
+.honest { margin: 0; color: var(--ink-soft); text-transform: none; }
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .felt { transition: none; }
+}
+
+/* ---- below 1024px: preview above the form, nothing sticky ------------------------------------------- */
+@media (max-width: 1023px) {
+  .title, .intro, .form, .preview { grid-column: 1 / -1; grid-row: auto; }
+  .preview { position: static; margin-top: calc(var(--u) * 0.6); }
+  .printer { grid-column: 1 / 9; }
+  .brass { grid-column: 9 / 17; }
+}
+@media (max-width: 639px) {
+  .printer, .brass { grid-column: 1 / -1; }
+}

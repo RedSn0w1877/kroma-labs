@@ -1,0 +1,95 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/* #specs (spec §6.5): an index card on the u-grid. The card is a subgrid of page columns 2–15 with a 1u
+   margin of paper, so every line inside it sits on page columns 3–14. No rules, no cells, no dividers:
+   only the grid and the gaps (rows .18u, groups .6u). */
+
+.specs {
+  padding-block: calc(var(--u) * 1.5);
+  row-gap: 0;
+  align-content: start;
+}
+
+.title { grid-column: 2 / 11; margin: 0; }
+.intro { grid-column: 2 / 9; margin: calc(var(--u) * 0.25) 0 0; color: var(--ink-soft); }
+
+.card {
+  grid-column: 2 / 16;
+  display: grid;
+  grid-template-columns: subgrid;
+  padding-block: var(--u);
+  margin-top: calc(var(--u) * 0.6);
+  row-gap: calc(var(--u) * 0.6);
+}
+
+/* ---- the four figures: two per row on page columns 3–8 and 9–14, the right-hand one set a quarter key
+   lower, like entries typed onto an index card rather than four stat cells in a row. ---------------- */
+.figures {
+  grid-column: 2 / 14;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  row-gap: calc(var(--u) * 0.4);
+}
+.figure { grid-column: span 6; display: grid; align-content: start; row-gap: calc(var(--u) * 0.18); }
+.figure:nth-child(even) { padding-top: calc(var(--u) * 0.25); }
+
+/* .t-fig is 1.35u, sized for a single short figure. The widest line, "±0.02 mm", is about 3.4em: at
+   1.05u it takes ~3.6u of its six columns, so every figure has well over 1u of air. */
+.fig {
+  display: flex;
+  align-items: baseline;
+  gap: 0.12em;
+  margin: 0;
+  white-space: nowrap;
+  font-size: clamp(2.5rem, calc(var(--u) * 1.05), 8.5rem);
+}
+.fig > :global(.t-fig) { font-size: 1em; }
+.unit {
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 720;
+  font-size: 0.42em;
+  letter-spacing: -0.02em;
+  color: var(--ink-soft);
+}
+.caption { margin: 0; color: var(--ink-soft); }
+
+/* ---- the groups: label on 3–6, value on 7–13 ------------------------------------------------------ */
+.group { grid-column: 2 / 14; display: grid; grid-template-columns: subgrid; row-gap: calc(var(--u) * 0.18); }
+.groupTitle { grid-column: 1 / -1; margin: 0; }
+.rows { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; row-gap: calc(var(--u) * 0.18); margin: 0; }
+.row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: baseline; }
+.row > dt { grid-column: 1 / 5; color: var(--ink-soft); }
+.value { grid-column: 5 / 12; margin: 0; max-width: none; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1023px) {
+  .title, .intro { grid-column: 1 / -1; }
+  .card { grid-column: 1 / -1; }
+  .figures, .group { grid-column: 2 / 16; }
+  /* Two figures per row, seven columns each. */
+  .figure { grid-column: span 7; }
+  .row > dt { grid-column: 1 / 6; }
+  .value { grid-column: 6 / -1; }
+}
+
+@media (max-width: 639px) {
+  .card {
+    display: block;
+    padding: 24px 16px;
+  }
+  .figures {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+  }
+  .figure { grid-column: auto; }
+  .figure:nth-child(even) { padding-top: 0; }
+  .fig { font-size: 2.5rem; }
+  .group { display: block; margin-top: calc(var(--u) * 0.6); }
+  .rows, .row { display: block; }
+  .rows { margin-top: 8px; }
+  .row + .row { margin-top: 12px; }
+  .value { display: block; }
+}

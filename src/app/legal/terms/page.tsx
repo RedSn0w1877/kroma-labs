@@ -4,37 +4,37 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = {
-  title: "Terms of Use",
-  description: "Terms governing use of the KROMA LABS concept site by HVNF Studios.",
+  title: "Terms of use",
+  description: "Terms for the Kroma concept site by HVNF Studios.",
 };
 
 export default function TermsPage() {
   return (
     <LegalPage
-      title="Terms of use"
-      updated="September 15, 2026"
+      title="terms of use"
+      updated="October 31, 2026"
       sections={[
         {
-          heading: "Concept project",
+          heading: "concept project",
           body: (
             <p>
-              This website is a portfolio demonstration created by HVNF Studios. KROMA LABS is a fictional brand. No
-              products are manufactured, offered for sale, or shipped, and no contract is formed by using any part of
-              this site, including the allocation request form.
+              This website is a portfolio demonstration created by HVNF Studios. Kroma is a fictional brand. No
+              products are manufactured, offered for sale or shipped, and no contract is formed by using any part of
+              this site, including the build form.
             </p>
           ),
         },
         {
-          heading: "Ownership",
+          heading: "ownership",
           body: (
             <p>
-              All source code, visual design, 3D assets, audio synthesis logic, written copy, and brand marks on this
-              site are © 2026 HVNF Studios. All rights reserved.
+              All source code, visual design, rendered images, audio synthesis logic, written copy and brand marks on
+              this site are © 2026 HVNF Studios. All rights reserved.
             </p>
           ),
         },
         {
-          heading: "Permitted use",
+          heading: "permitted use",
           body: (
             <>
               <p>You may view this site in a web browser for personal evaluation of HVNF Studios&apos; work.</p>
@@ -47,16 +47,16 @@ export default function TermsPage() {
           ),
         },
         {
-          heading: "Illustrative information",
+          heading: "illustrative information",
           body: (
             <p>
-              Specifications, tolerances, certifications, pricing, stock counts, and batch figures are illustrative
-              and do not describe a real product. The site is provided as-is, without warranties of any kind.
+              Specifications, tolerances, prices and shipping times are illustrative and do not describe a real
+              product. The site is provided as-is, without warranties of any kind.
             </p>
           ),
         },
         {
-          heading: "Contact",
+          heading: "contact",
           body: <p>Licensing and project enquiries should be directed to HVNF Studios through its official channels.</p>,
         },
       ]}

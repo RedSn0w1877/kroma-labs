@@ -1,0 +1,76 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/* The printed ticket (spec §6.6): thermal paper feeding out of the mirror's slot, 18 steps over 650 ms,
+   like a receipt printer's stepper motor. Torn along a zigzag at the bottom. Under reduced motion it is
+   simply there. The shadow is a drop-shadow on the outer box so it follows the torn edge. */
+
+.ticket {
+  --paper: #FBF8F1;
+  --ink: var(--legend);
+  --ink-soft: var(--legend-soft);
+  color-scheme: light;
+  position: relative;
+  color: var(--legend);
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.28));
+  animation: print 650ms steps(18, end) both;
+}
+.ticket::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to bottom, rgb(0 0 0 / 0.1), transparent 14px),
+    var(--paper);
+  /* A 10px zigzag along the bottom edge. */
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+    conic-gradient(from 135deg at 50% 0, #000 90deg, #0000 0) bottom / 12px 9px repeat-x;
+}
+@keyframes print {
+  from { transform: translateY(-100%); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticket { animation: none; }
+}
+
+.ticket {
+  padding: 18px 18px 30px;
+  font: 500 0.8125rem/1.35 var(--font-ui);
+  font-stretch: 100%;
+}
+.head { margin: 0; color: var(--ink-soft); }
+.head:focus { outline: none; }
+.head:focus-visible { outline: 3px solid var(--legend); outline-offset: 3px; }
+.code {
+  margin: 8px 0 0;
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-size: clamp(1.125rem, calc(var(--u) * 0.31), 2rem);
+  white-space: nowrap;
+}
+.for { margin: 4px 0 0; text-transform: none; }
+.lines {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed rgb(20 20 20 / 0.35);
+  display: grid;
+  row-gap: 3px;
+}
+.lines > div { display: grid; grid-template-columns: 6.2em 1fr; column-gap: 8px; }
+.lines dt { color: var(--ink-soft); }
+.lines dd { margin: 0; overflow-wrap: anywhere; }
+.ships { margin: 10px 0 0; }
+.barcode { display: block; width: 100%; height: 40px; margin: 14px 0 0; fill: var(--legend); }
+.foot {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed rgb(20 20 20 / 0.35);
+  color: var(--ink-soft);
+}
+.fine { margin: 8px 0 0; color: var(--ink-soft); }
+.edit { margin-top: 14px; }

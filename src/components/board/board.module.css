@@ -1,0 +1,86 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/* ---- the board: the rest render with the press canvas lying exactly over it ------------------------ */
+.board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2880 / 1200;
+  /* Vertical swipes still scroll the page; a tap or a click plays a key. */
+  touch-action: pan-y;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Its box is reserved before a byte arrives: no layout shift, no fade, no placeholder. */
+  aspect-ratio: 2880 / 1200;
+  -webkit-user-drag: none;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  /* The phone render: the board's right half, every key at least 44 CSS px wide. */
+  .board[data-phone],
+  .board[data-phone] .img {
+    aspect-ratio: 1170 / 1100;
+  }
+}
+
+/* ---- echo glyphs: each typed letter lands like a key bottoming out ----------------------------------
+   One-shot, transform only, 170 ms: a short drop from above the line, a 4% squash on the floor, rest.
+   Nothing loops, so an idle page has no running animations. */
+.glyph {
+  display: inline-block;
+  transform-origin: 50% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glyph {
+    animation: land 170ms cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+}
+
+@keyframes land {
+  0% {
+    transform: translateY(-0.16em);
+  }
+  58% {
+    transform: translateY(0.03em) scaleY(0.955);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* ---- spectrum: a meter drawn only inside the listen window after a strike --------------------------- */
+.spectrum {
+  display: block;
+  width: 100%;
+}
+
+.spectrumSm {
+  height: max(calc(var(--u) * 0.45), 28px);
+}
+
+/* The big meter lives in a well cut into the felt: the mat's deep tone, one key-radius, a soft inner
+   shadow along the top edge. The bars stand on its floor. */
+.spectrumLg {
+  box-sizing: border-box;
+  height: calc(var(--u) * 1.5);
+  padding: calc(var(--u) * 0.14) calc(var(--u) * 0.2) calc(var(--u) * 0.1);
+  border-radius: calc(var(--u) * 0.12);
+  background: var(--mat-deep);
+  box-shadow: inset 0 calc(var(--u) * 0.03) calc(var(--u) * 0.06) rgb(0 0 0 / 0.18);
+}

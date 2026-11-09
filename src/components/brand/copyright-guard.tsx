@@ -8,7 +8,7 @@ import { COPYRIGHT_NOTICE } from "@/lib/copyright";
 /** Prints a console notice and appends attribution to long copied passages. Renders nothing. */
 export function CopyrightGuard() {
   useEffect(() => {
-    console.info(`%c${COPYRIGHT_NOTICE}`, "font: 600 12px monospace; color: #ff4400;");
+    console.info(`%c${COPYRIGHT_NOTICE}`, "font: 600 12px monospace; color: #C8341F;");
 
     const onCopy = (event: ClipboardEvent) => {
       const active = document.activeElement;

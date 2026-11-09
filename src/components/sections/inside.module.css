@@ -1,0 +1,188 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/* #inside (spec §6.4). Two modes, decided here before first paint:
+   - scroll mode (html.fx: scripted and not lite, see device.ts; motion allowed, a desktop-sized
+     viewport): 320svh section, a sticky 100svh stage, six detents driven by the scroll timeline;
+   - static mode (everything else, including no-JS): normal height, a still, the list and a toggle.
+   Never put overflow:hidden on an ancestor of the stage: it would become the scroller and break both
+   sticky and view(). The page uses clip. */
+
+.inside {
+  --p: 0;
+  position: relative;
+  padding-block: calc(var(--u) * 1.5);
+}
+
+.stage {
+  align-items: center;
+  row-gap: calc(var(--u) * 0.4);
+}
+
+/* ---- copy: h2, intro and the always-visible list on columns 2–6 ----------------------------------- */
+.copy { grid-column: 2 / 7; align-self: center; }
+.title { margin: 0; white-space: nowrap; } /* one line: it runs over the figure's empty top band */
+.intro { margin: calc(var(--u) * 0.18) 0 0; color: var(--ink-soft); }
+.scrollOnly { display: none; }
+
+.layers {
+  list-style: none;
+  margin: calc(var(--u) * 0.3) 0 0;
+  padding: 0;
+  display: grid;
+  row-gap: calc(var(--u) * 0.16);
+}
+.item {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  column-gap: 12px;
+  align-items: start;
+  transition: color 160ms linear;
+}
+/* The index is a small keycap; the active detent's key goes down. */
+.idx {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 6px;
+  place-content: center;
+  justify-items: center;
+  font-size: 0.8125rem;
+  --d: 3px;
+}
+.itemText { min-width: 0; }
+.itemTitle { margin: 3px 0 0; }
+.itemBody { margin: 2px 0 0; font-size: 0.875rem; line-height: 1.32rem; }
+/* Facts keep their units' case (Hz, USB-C, 20A). */
+.facts { margin: 4px 0 0; color: var(--ink-soft); text-transform: none; font-weight: 440; }
+
+/* ---- figure: columns 7–16, clear of the fixed function row ----------------------------------------- */
+.figure {
+  grid-column: 7 / 17;
+  /* Bleeds through the right margin to the page edge: the render's own transparent border is the margin. */
+  margin-right: calc(var(--u) * -1);
+  align-self: center;
+  padding-top: 80px;
+  display: grid;
+  justify-items: start;
+  row-gap: calc(var(--u) * 0.25);
+}
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1600 / 1000;
+  overflow: clip;
+}
+.frame picture { position: absolute; inset: 0; }
+.frame img { display: block; width: 100%; height: 100%; }
+.stack { position: absolute; inset: 0; display: none; }
+.layer { transform: translateY(var(--dy)); }
+.exploded { display: none; }
+.frame[data-view="exploded"] .assembled { display: none; }
+.frame[data-view="exploded"] .exploded { display: block; }
+.toggle { margin-left: 4px; }
+
+/* No JS: the exploded still and the list; no toggle. */
+:global(html:not(.js)) .assembled { display: none; }
+:global(html:not(.js)) .exploded { display: block; }
+
+.sentinel { display: none; }
+
+/* ---- scroll mode ------------------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 600px) {
+  :global(.fx) .inside { height: 320svh; padding-block: 0; }
+  :global(.fx) .stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    align-content: center;
+  }
+  :global(.fx) .scrollOnly { display: inline; }
+  :global(.fx) .toggle { display: none; }
+  :global(.fx) .stack { display: block; }
+  /* The keycaps' extra lift rises above the frame into the figure's top padding: nothing clips the stack.
+     (Every layer is a transparent render, so the overflow is only ever empty pixels or the lifted caps.) */
+  :global(.fx) .frame { overflow: visible; }
+  :global(.fx) .exploded { display: none; }
+  :global(.fx) .frame .assembled { display: block; }
+
+  /* Sentinel k covers its detent window: it crosses the middle of the viewport while p is in [a_k, a_k+1). */
+  :global(.fx) .sentinel {
+    display: block;
+    position: absolute;
+    left: 0;
+    width: 1px;
+    top: calc(50svh + 220svh * var(--a));
+    height: calc(220svh * (var(--b) - var(--a)));
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  /* The active detent: its item darkens and its key goes down; the rest wait in the soft ink. */
+  :global(.fx) .item { color: var(--ink-soft); }
+  :global(.fx) .item[aria-current="step"] { color: var(--ink); }
+  :global(.fx) .item[aria-current="step"] .idx {
+    --face: var(--graphite);
+    --skirt: var(--graphite-skirt);
+    --fg: var(--cap);
+    --d: 0.5px;
+    --ps: 0.13;
+    transform: translateY(2.5px);
+    transition-duration: 60ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+
+  /* Native path: the compositor drives transform and opacity from the section's own view timeline.
+     For a 320svh subject and a 100svh scrollport, "contain 0% → contain 100%" is exactly the sticky phase.
+     animation-timeline and animation-range come AFTER the shorthand, which resets them. */
+  @supports (animation-timeline: view()) {
+    :global(.fx) .inside { view-timeline: --inside block; }
+    :global(.fx) .frame .assembled { animation: kl-assembled linear both; animation-timeline: --inside; animation-range: contain 0% contain 100%; }
+    :global(.fx) .stack { animation: kl-stack linear both; animation-timeline: --inside; animation-range: contain 0% contain 100%; }
+    /* Every layer animation shares the one timeline and range; the x-ray layers run a second, opacity-only
+       animation on it as well. */
+    :global(.fx) .layer[data-l] { animation-timeline: --inside, --inside; animation-range: contain 0% contain 100%; }
+    :global(.fx) .layer[data-l="1"] { animation-name: kl-l1, kl-xray; }
+    :global(.fx) .layer[data-l="2"] { animation-name: kl-l2, kl-xray; }
+    :global(.fx) .layer[data-l="3"] { animation-name: kl-l3, kl-xray; }
+    :global(.fx) .layer[data-l="4"] { animation-name: kl-l4, kl-xray; }
+    :global(.fx) .layer[data-l="5"] { animation-name: kl-l5, none; }
+    :global(.fx) .layer[data-l] { animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; }
+  }
+
+  /* Fallback path: inside-stage.tsx writes --p (0–1) once per frame while #inside is on screen. */
+  @supports not (animation-timeline: view()) {
+    :global(.fx) .frame .assembled { opacity: calc(1 - clamp(0, (var(--p) - 0.05) / 0.04, 1)); }
+    :global(.fx) .stack { opacity: clamp(0, (var(--p) - 0.05) / 0.04, 1); }
+    :global(.fx) .layer[data-l] {
+      transform: translateY(calc(var(--lift, 0%) + (var(--dy) - var(--lift, 0%)) * (1 - clamp(0, (var(--p) - var(--a)) / 0.08, 1))));
+    }
+    :global(.fx) .layer[data-x] {
+      opacity: calc(1 - 0.86 * min(clamp(0, (var(--p) - 0.74) / 0.05, 1), clamp(0, (0.91 - var(--p)) / 0.04, 1)));
+    }
+  }
+}
+
+/* Travel then hold, like a tactile bump: each layer sits pushed down by --dy (assembled) until its detent,
+   rises over 8% of the phase with an ease-out, then holds exploded. */
+@keyframes kl-l1 { 0%, 10% { transform: translateY(var(--dy)); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); } 18%, 100% { transform: translateY(var(--lift, 0%)); } }
+@keyframes kl-l2 { 0%, 26% { transform: translateY(var(--dy)); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); } 34%, 100% { transform: translateY(var(--lift, 0%)); } }
+@keyframes kl-l3 { 0%, 42% { transform: translateY(var(--dy)); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); } 50%, 100% { transform: translateY(var(--lift, 0%)); } }
+@keyframes kl-l4 { 0%, 58% { transform: translateY(var(--dy)); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); } 66%, 100% { transform: translateY(var(--lift, 0%)); } }
+@keyframes kl-l5 { 0%, 74% { transform: translateY(var(--dy)); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); } 82%, 100% { transform: translateY(var(--lift, 0%)); } }
+/* The still hands over to the stack (in its assembled pose) between p .05 and .09: the swap is invisible. */
+/* Detent 5, the brass weight: everything above it thins to a ghost while the brass rises, then the stack
+   fills back in for the case at detent 6. Opacity only. */
+@keyframes kl-xray { 0%, 74% { opacity: 1; } 79%, 87% { opacity: 0.14; } 91%, 100% { opacity: 1; } }
+@keyframes kl-assembled { 0%, 5% { opacity: 1; } 9%, 100% { opacity: 0; } }
+@keyframes kl-stack { 0%, 5% { opacity: 0; } 9%, 100% { opacity: 1; } }
+
+/* ---- below 1024px: always static, one column: title, intro, figure, list --------------------------- */
+@media (max-width: 1023px) {
+  .copy { display: contents; }
+  .title, .intro, .layers, .figure { grid-column: 1 / -1; }
+  .title { order: 1; }
+  .intro { order: 2; }
+  .figure { order: 3; padding-top: 0; margin-right: 0; }
+  .layers { order: 4; margin-top: 0; }
+  .itemBody { font-size: 1rem; line-height: 1.5rem; }
+}

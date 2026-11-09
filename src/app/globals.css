@@ -1,148 +1,95 @@
 /* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
 
-@import "tailwindcss";
+/* Only Tailwind's preflight reset: the page uses no utility classes, so no utilities, theme variables or
+   --tw-* @property rules are generated (about 10 KB of CSS the page never used). */
+@layer base, components;
+@import "tailwindcss/preflight.css" layer(base);
 
-/* Design tokens: `bg-carbon`, `text-chalk`, `border-hairline`, etc. */
-@theme {
-  --color-carbon: #08080a;
-  --color-billet: #111114;
-  --color-hairline: #23232a;
-  --color-chalk: #f4f4f5;
-  --color-metric: #92929e;
-  --color-signal: #ff4400;
-  --color-led: #22c55e;
+/*
+ * The key unit (spec §2, §4). 1u = one of the board's 16 columns, so the page and the keyboard share a
+ * grid. Registered as <length>, so calc(100cqi / 17.884) computes to px on .page's children and every
+ * descendant inherits that px value — var(--u) is safe inside CSS modules and nested elements.
+ */
+@property --u { syntax: "<length>"; inherits: true; initial-value: 80px; }
+@property --g { syntax: "<length>"; inherits: true; initial-value: 9px; }
 
-  --animate-led: led-pulse 2.4s ease-in-out infinite;
-  --animate-loadbar: loadbar 1.2s ease-in-out infinite;
-
-  @keyframes led-pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.35;
-    }
-  }
-
-  @keyframes loadbar {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(300%);
-    }
-  }
+/*
+ * The display face's stand-in while Martian Mono loads: Arial scaled to Martian Mono's condensed cut.
+ * Measured (spec §3.3): the cut is mono with a 0.600em advance at wdth 75 for every weight (0.700 at
+ * wdth 100), ascent 1000, descent 200, line gap 0, upm 1000. Arial averages 0.4644em per character over
+ * this site's own display copy (h1, h2s, figures, legends), so size-adjust = 0.600 / 0.4644 = 129%.
+ * Overrides are scaled by size-adjust, hence ascent = 1 / 1.29 and descent = 0.2 / 1.29. Line heights are
+ * unitless and the desktop h1 lines are nowrap, so the h1 box is identical before and after the swap.
+ */
+@font-face {
+  font-family: "kroma-display-fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Roboto"), local("Helvetica");
+  size-adjust: 129%;
+  ascent-override: 77.5%;
+  descent-override: 15.5%;
+  line-gap-override: 0%;
 }
 
-@theme inline {
-  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-  /* Editorial serif accent — used only on the italic highlight line under a headline. */
-  --font-editorial-serif: var(--font-editorial), ui-serif, Georgia, serif;
-}
+/* Surfaces flip with the mat; objects (caps, legends, paper) keep their colour on every mat. */
+:root {
+  /* The mats are written in oklch so a re-chrome without View Transitions fades through Oklab, not the
+     muddy sRGB midpoint. Hex equivalents: #F2C200 / #D9AC00, #D8D5CC / #C4C0B4, #17171A / #26262B. */
+  --mat: oklch(83.26% 0.1702 90.64); --mat-deep: oklch(76.36% 0.156 89.72); --ink: #141414; --ink-soft: #3D3A33; --error: #8E2213;
+  --cap: #ECE7DB; --cap-skirt: #CDC3A6; --legend: #141414; --legend-soft: #3D3A33;
+  --graphite: #393A40; --graphite-skirt: #26272B; --signal: #C8341F; --signal-skirt: #8E2213; --cap-text: #F4EFE6;
+  --font-ui: var(--font-martian), ui-monospace, monospace;
+  --font-text: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light;
+} /* --kroma-display is set inline on <html> by layout.tsx (spec §3.2). */
+:root[data-mat="chalk"] { --mat: oklch(87.29% 0.0126 91.53); --mat-deep: oklch(80.77% 0.0171 91.58); }
+:root[data-mat="ink"] { --mat: oklch(20.59% 0.0059 285.87); --mat-deep: oklch(27.07% 0.0092 285.77); --ink: #ECE7DB; --ink-soft: #B3AEA2; --error: #FF9C85; color-scheme: dark; }
 
 @layer base {
   html {
-    background: var(--color-carbon);
-    color-scheme: dark;
+    overflow-x: clip;
+    scroll-padding-top: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
+  /* The felt: one static ≤8 KB tile with its alpha baked in. It scrolls with the page: no fixed
+     attachment, no blend mode, no animation (spec §2, §11.9). */
   body {
-    position: relative;
-    background: var(--color-carbon);
-    color: var(--color-chalk);
+    background: var(--mat) url("../assets/felt-256.webp") 0 0 / 256px 256px repeat;
+    color: var(--ink);
+    font: 400 1.0625rem/1.75rem var(--font-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /*
-   * Film-grain texture: a tiny animated noise field pinned behind all content.
-   * Gives the flat carbon background some life (like an expensive print run)
-   * without being a dot-grid, a glow orb, or any other banned SaaS artifact.
-   * Purely decorative and inert, so it's skipped for prefers-reduced-motion.
-   */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: -3%;
-    width: 106%;
-    height: 106%;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 180px 180px;
-    opacity: 0.05;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-    animation: grain-shift 1.1s steps(4) infinite;
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    /* The mat re-chrome: the only page-level transition. */
+    body { transition: background-color 240ms linear; }
   }
 
-  @keyframes grain-shift {
-    0% {
-      transform: translate(0, 0);
-    }
-    25% {
-      transform: translate(-2%, 1%);
-    }
-    50% {
-      transform: translate(1%, -2%);
-    }
-    75% {
-      transform: translate(-1%, -1%);
-    }
-    100% {
-      transform: translate(0, 0);
-    }
+  ::selection { background: var(--ink); color: var(--mat); }
+
+  /* The re-chrome (kroma-state setMat): the new mat grows as a circle from the chosen swatch. One-shot,
+     compositor-run; the body fade is off meanwhile, so the new view is the settled colour, not a fade. */
+  html[data-rechrome] body { transition: none; }
+  ::view-transition-old(root) { animation: none; }
+  ::view-transition-new(root) {
+    animation: kl-rechrome 420ms cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+  @keyframes kl-rechrome {
+    from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); }
+    to { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); }
   }
 
-  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-    body::before {
-      animation: none;
-    }
-  }
+  /* The ring flips with the mat (ink on yolk and chalk, cream on ink). */
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto !important; }
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  ::selection {
-    background: var(--color-signal);
-    color: var(--color-carbon);
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--color-signal);
-    outline-offset: 2px;
-  }
-
-  /* Lenis smooth-scroll requirements */
-  html.lenis,
-  html.lenis body {
-    height: auto;
-  }
-
-  .lenis.lenis-smooth {
-    scroll-behavior: auto !important;
-  }
-
-  .lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
-  }
-
-  .lenis:not(.lenis-autoToggle).lenis-stopped {
-    overflow: clip;
-  }
-  .lenis.lenis-autoToggle {
-    transition-property: overflow;
-    transition-duration: 1ms;
-    transition-behavior: allow-discrete;
-  }
-
-  .lenis.lenis-smooth iframe {
-    pointer-events: none;
+  /* In-text links stay underlined; keycap links (.cap) never are. */
+  a:not(.cap) {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
   }
 
   /* Printed or PDF'd pages carry a visible watermark. */
@@ -152,11 +99,283 @@
       position: fixed;
       inset: 50% auto auto 50%;
       transform: translate(-50%, -50%) rotate(-30deg);
-      font: 600 28px/1 monospace;
-      letter-spacing: 0.2em;
+      font: 600 28px/1 var(--font-ui);
+      letter-spacing: 0;
       color: rgb(113 113 122 / 0.35);
       white-space: nowrap;
       pointer-events: none;
     }
   }
+}
+
+@layer components {
+  /* ---- u-grid (spec §2, §4) ------------------------------------------------------------------------
+     .page wraps <main> and the footer only. It is a query container (layout containment), so never put
+     position:fixed elements inside it: they would be positioned against it instead of the viewport. */
+  .page { container-type: inline-size; }
+  .page > * { --u: calc(100cqi / 17.884); --g: calc(var(--u) * 0.1158); }
+  /* Outside .page (the fixed nav, the skip link) u comes from the viewport instead: within a scrollbar's
+     width of the container value, and never the 80px initial value on a narrow screen. */
+  :root { --u: calc(100vw / 17.884); --g: calc(var(--u) * 0.1158); }
+
+  .ug {
+    display: grid;
+    grid-template-columns: repeat(16, calc(var(--u) - var(--g)));
+    column-gap: var(--g);
+    padding-inline: var(--u);
+  }
+  .sub { display: grid; grid-template-columns: subgrid; }
+
+  @media (max-width: 1023px) {
+    :root { --u: calc((100vw - 48px) / 15.884); }
+    .page > * { --u: calc((100cqi - 48px) / 15.884); }
+    .ug { padding-inline: 24px; }
+  }
+  @media (max-width: 639px) {
+    :root { --u: calc((100vw - 32px) / 7.884); }
+    .page > * { --u: calc((100cqi - 32px) / 7.884); }
+    .ug { grid-template-columns: repeat(8, calc(var(--u) - var(--g))); padding-inline: 16px; }
+    /* Room for the fixed bottom dock (site-nav). */
+    .page { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+    /* Focused or scrolled-to elements stop above the dock, never under it. */
+    html { scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  }
+
+  /* The only separator between sections: one key-gap tall, full bleed. */
+  .seam { height: var(--g); background: var(--mat-deep); }
+
+  /* First frame (PERF-1): the below-fold sections skip style, layout and paint until they near the
+     viewport, so the hero's first layout no longer waits on ~6,000 px of nested 16-column grids. Their text
+     stays in the DOM, the accessibility tree and find-in-page. `auto` remembers each section's real height
+     once it has rendered. The estimates are the measured content heights (padding excluded: it is added on
+     top) in key units: desktop (1024–1920 wide), then tablet and phone. #inside is left out: its sticky stage and view() timeline span 320svh. The
+     footer, not #keymap, carries it, because #keymap is a subgrid and containment would cancel that. None of
+     these sections hold anything fixed or anything that paints outside its box. */
+  #sound, #specs, #build, .page > footer { content-visibility: auto; }
+  #sound { contain-intrinsic-size: auto calc(var(--u) * 10); }
+  #specs { contain-intrinsic-size: auto calc(var(--u) * 20); }
+  #build { contain-intrinsic-size: auto calc(var(--u) * 17.5); }
+  .page > footer { contain-intrinsic-size: auto calc(var(--u) * 10.5); }
+  @media (max-width: 1023px) {
+    #sound { contain-intrinsic-size: auto calc(var(--u) * 18); }
+    #specs { contain-intrinsic-size: auto calc(var(--u) * 28.5); }
+    #build { contain-intrinsic-size: auto calc(var(--u) * 41.5); }
+    .page > footer { contain-intrinsic-size: auto calc(var(--u) * 15); }
+  }
+  /* #inside joins them only in static mode (lite, reduced motion, no JS: no html.fx), where it is a still
+     and a list with no sticky stage and no scroll timeline. It is the heaviest section to lay out. */
+  html:not(.fx) #inside { content-visibility: auto; contain-intrinsic-size: auto calc(var(--u) * 11); }
+  @media (max-width: 1023px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 22); } }
+  @media (max-width: 639px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 24); } }
+  @media (max-width: 639px) {
+    #sound { contain-intrinsic-size: auto calc(var(--u) * 21); }
+    #specs { contain-intrinsic-size: auto calc(var(--u) * 38); }
+    #build { contain-intrinsic-size: auto calc(var(--u) * 48.5); }
+    .page > footer { contain-intrinsic-size: auto calc(var(--u) * 19.5); }
+  }
+
+  /* ---- type (spec §2, §3) --------------------------------------------------------------------------
+     Minimum 12px anywhere, no italics, no tracked caps. Headings and UI are mono and lowercase; body copy
+     is Hanken in sentence case. Unit symbols keep their case (Hz, kHz): wrap them in .t-keep inside the
+     lowercasing classes. */
+  .t-h1, .t-h2, .t-fig { font-family: var(--kroma-display); font-stretch: 75%; }
+  .t-h1 {
+    font-weight: 780;
+    text-transform: lowercase;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    /* "a mechanical keyboard" is 21 × (0.600 − 0.045) = 11.655em; columns 2–11 are 9.884u. With 3% slack
+       (spec §3.3): 9.88u / 11.655 × 0.97 = 0.822u. (The spec's 0.96u assumed a 0.525em advance.) */
+    font-size: clamp(2.75rem, calc(var(--u) * 0.822), 7.25rem);
+  }
+  .t-h2 {
+    font-weight: 720;
+    text-transform: lowercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    font-size: clamp(2rem, calc(var(--u) * 0.715), 4.5rem);
+  }
+  .t-fig {
+    font-weight: 780;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    font-size: clamp(3rem, calc(var(--u) * 1.35), 9rem);
+  }
+  .t-ui, .t-ui-sm, .t-ui-lg {
+    font-family: var(--font-ui);
+    font-stretch: 100%;
+    font-weight: 560;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+    text-transform: lowercase;
+  }
+  .t-ui-sm { font-size: 0.8125rem; }
+  .t-ui-lg { font-size: 0.9375rem; }
+  .t-body {
+    font-family: var(--font-text);
+    font-size: 1.0625rem;
+    line-height: 1.75rem;
+    max-width: 60ch;
+  }
+  /* Emphasis switches to mono at a matched x-height (600 vs 493 units). Never bold. */
+  .t-em {
+    font-family: var(--font-ui);
+    font-stretch: 100%;
+    font-weight: 560;
+    font-size: 0.82em;
+  }
+  .t-fine {
+    font-family: var(--font-ui);
+    font-stretch: 100%;
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+  .t-keep { text-transform: none; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* ---- keycap primitive (spec §2, §8) ----------------------------------------------------------------
+     Press: 60 ms ease-in, 2.5 px down. Release: 110 ms ease-out, no overshoot. --w sizes a cap in u. */
+  .cap {
+    --face: var(--cap); --skirt: var(--cap-skirt); --fg: var(--legend);
+    /* --d: how far the skirt shows below the top face (the key's travel left). --ps: the pressed shade
+       pooling in the dish. Pressed states only change these two, so one box-shadow list serves every key. */
+    --d: 4px; --ps: 0;
+    position: relative;
+    display: inline-grid;
+    align-content: space-between;
+    justify-items: start;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 6px 10px 7px;
+    border-radius: 8px;
+    border: 0;
+    /* The sculpted top: a light catch on the far rim of the dish falling to a soft shade at the front
+       edge, and the pressed shade (--ps) pooling at the back of the dish. Gradients, not blurred shadows:
+       they cost next to nothing to raster, even in software. */
+    background:
+      linear-gradient(to bottom, rgb(0 0 0 / var(--ps)), rgb(0 0 0 / 0) 55%),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 42%, rgb(0 0 0 / 0.05) 100%),
+      var(--face);
+    color: var(--fg);
+    text-decoration: none;
+    cursor: pointer;
+    font: 560 0.8125rem/1.1 var(--font-ui);
+    font-stretch: 100%;
+    text-transform: lowercase;
+    /* Top to bottom of the stack: the rim highlight, the side walls catching and losing the light, then
+       the skirt in two tones (lit upper wall, darker lower wall), a hard contact line where the key meets
+       the plate and a soft cast shadow on the mat. Nothing here is blurred: the cast shadow is four hard
+       steps, each a little lower, narrower and fainter, which reads as one soft falloff at key scale. A
+       blurred box-shadow is a blur pass per key at raster time; with ~a dozen keys on the first screen
+       that alone cost 500–800 ms of GPU raster before first paint in software GL (fix round 2, PERF-1).
+       The steps scale with --d, so a pressed key's shadow tucks in with it. */
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      inset 1px 0 0 rgb(255 255 255 / 0.14),
+      inset -1px 0 0 rgb(0 0 0 / 0.08),
+      0 calc(var(--d) * 0.5) 0 0 color-mix(in oklab, var(--skirt) 74%, white),
+      0 var(--d) 0 0 var(--skirt),
+      0 calc(var(--d) + 1px) 0 0 rgb(0 0 0 / 0.16),
+      0 calc(var(--d) + 2px) 0 0 rgb(0 0 0 / 0.08),
+      0 calc(var(--d) * 1.25 + 3px) 0 -1px rgb(0 0 0 / 0.065),
+      0 calc(var(--d) * 1.5 + 4px) 0 -2px rgb(0 0 0 / 0.045),
+      0 calc(var(--d) * 1.75 + 5px) 0 -3px rgb(0 0 0 / 0.03);
+    transform: translateY(0);
+    transition: transform 110ms cubic-bezier(0, 0, 0.2, 1), box-shadow 110ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  .cap:active, .cap[data-down], .cap[aria-pressed="true"], .cap[aria-selected="true"] {
+    --d: 1.5px; --ps: 0.13;
+    transform: translateY(2.5px);
+    transition-duration: 60ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  /* Nav: the section in view latches down in graphite, like the chosen switch in #sound. */
+  .cap[aria-current]:not([aria-current="false"]) {
+    --face: var(--graphite); --skirt: var(--graphite-skirt); --fg: var(--cap); --d: 1.5px; --ps: 0.13;
+    transform: translateY(2.5px);
+  }
+  .cap--graphite { --face: var(--graphite); --skirt: var(--graphite-skirt); --fg: var(--cap); }
+  .cap--signal { --face: var(--signal); --skirt: var(--signal-skirt); --fg: var(--cap-text); }
+  /* The dimmed top legend reads 6.6:1 on cream and 6.4:1 on graphite; on the red key it would fall to
+     3.1:1, so there it stays at full strength (4.62:1). */
+  .cap__top { font-size: max(12px, 0.75rem); opacity: 0.72; }
+  .cap--signal .cap__top { opacity: 1; }
+  .cap[style*="--w"] { width: calc(var(--u) * var(--w) - var(--g)); }
+  /* Legends that are not controls (keymap, ©) don't pretend to be clickable. */
+  kbd.cap, span.cap { cursor: default; }
+  .cap:disabled { cursor: not-allowed; opacity: 0.6; }
+  @media (hover: hover) { .cap:hover { filter: brightness(1.04); } }
+  @media (prefers-reduced-motion: reduce) { .cap { transition: none; } }
+
+  /* A small inline keycap for running text: <Kbd>k</Kbd> (keycap.tsx). Use with .cap. */
+  .kbd {
+    min-height: 0;
+    min-width: 1.75em;
+    padding: 0.12em 0.45em 0.18em;
+    border-radius: 5px;
+    font-size: 0.8em;
+    line-height: 1.2;
+    vertical-align: 0.1em;
+    justify-items: center;
+    align-content: center;
+    --d: 2px;
+  }
+
+  /* Skip link: hidden until focused, then a keycap at the top left. */
+  .skip:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+  .skip:focus { position: fixed; top: 16px; left: 16px; z-index: 60; }
+
+  /* ---- paper ---------------------------------------------------------------------------------------
+     The cap-cream objects lying on the mat: the spec card, ticket, keymap sheet and legal pages. No
+     border. The surface tokens are re-pointed inside, so --ink and --ink-soft (and the focus ring) stay
+     dark on cream even on the ink mat. */
+  .paper {
+    --ink: var(--legend);
+    --ink-soft: var(--legend-soft);
+    --error: #8E2213;
+    color-scheme: light;
+    background: var(--cap);
+    color: var(--legend);
+    border-radius: calc(var(--u) * 0.12);
+    box-shadow: 0 1px 1px rgb(0 0 0 / 0.07), 0 18px 32px -24px rgb(0 0 0 / 0.5);
+  }
+  .paper::selection, .paper ::selection { background: var(--legend); color: var(--cap); }
+}
+
+/*
+ * Gates (spec §2). Unlayered and !important on purpose: a CSS module's own `display` must never be able
+ * to resurrect a gated element. html.js and html[data-embed] are set by liteScript before first paint.
+ */
+html:not(.js) .js-only { display: none !important; }
+html.js .no-js { display: none !important; }
+@media not ((hover: hover) and (pointer: fine)) { .kbd-only { display: none !important; } }
+@media (hover: hover) and (pointer: fine) { .touch-only { display: none !important; } }
+/* Framed by HVNF's Work carousel: only the hero, so nothing below it loads. */
+html[data-embed] main > :not(#top), html[data-embed] #keymap { display: none !important; }
+
+@media print {
+  /* Nav, dock and canvases. */
+  [data-print-hide] { display: none !important; }
 }

@@ -1,0 +1,153 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+.footer {
+  padding-block: calc(var(--u) * 1.5) var(--u);
+  row-gap: calc(var(--u) * 0.6);
+}
+
+/* ---- the keymap sheet: cream paper at columns 2–15, on the page's own columns ------------------------ */
+.sheet {
+  grid-column: 2 / 16;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-content: start;
+  padding-block: var(--u);
+}
+
+/* The sheet's first and last columns are its 1u margin; the content sits on page columns 3–14. */
+.title {
+  grid-column: 2 / 12;
+}
+
+.sub {
+  grid-column: 2 / 12;
+  margin-top: calc(var(--u) * 0.25);
+  color: var(--ink-soft);
+}
+
+.list {
+  grid-column: 2 / 14;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: calc(var(--u) * 0.25);
+  margin: calc(var(--u) * 0.6) 0 0;
+}
+
+.entry {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+/* Keys on page columns 3–5 (three keys of 1u fit exactly), one line each on 6–14. */
+.keys {
+  grid-column: 1 / 4;
+  display: flex;
+  gap: var(--g);
+  align-items: center;
+}
+
+/* A legend never wraps inside its key: on narrow phones a key grows past its u width instead. These are
+   legends, not controls, so they keep their true key size rather than the 44px tap floor. */
+.keys > * {
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.what {
+  grid-column: 4 / -1;
+  margin: 0;
+}
+
+/* ---- below the sheet --------------------------------------------------------------------------------- */
+.base {
+  grid-column: 2 / 16;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--u) * 0.25);
+}
+
+/* Without the sheet (legal pages), line up with the paper on columns 3–14. */
+.footer[data-plain] .base {
+  grid-column: 3 / 15;
+}
+
+.note {
+  color: var(--ink-soft);
+}
+
+/* Full 44 px tap targets without changing how the line looks. */
+.legal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 4px;
+}
+
+.sideprint {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.2);
+  margin-top: calc(var(--u) * 0.25);
+}
+
+.sideprint kbd {
+  flex: none;
+  justify-items: center;
+  align-content: center;
+  font-size: 1rem;
+}
+
+@media (max-width: 1023px) {
+  .sheet {
+    grid-column: 1 / -1;
+  }
+
+  .base,
+  .footer[data-plain] .base {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 639px) {
+  .footer {
+    padding-block: 48px 32px;
+    row-gap: 32px;
+  }
+
+  .sheet {
+    display: block;
+    padding: 28px 20px;
+  }
+
+  .sub {
+    margin-top: 8px;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .base {
+    gap: 14px;
+  }
+}

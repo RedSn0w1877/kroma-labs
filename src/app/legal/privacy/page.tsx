@@ -4,51 +4,50 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = {
-  title: "Privacy Notice",
-  description: "How the KROMA LABS concept site by HVNF Studios handles data.",
+  title: "Privacy notice",
+  description: "How the Kroma concept site by HVNF Studios handles data.",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPage
-      title="Privacy notice"
-      updated="September 15, 2026"
+      title="privacy notice"
+      updated="October 31, 2026"
       sections={[
         {
-          heading: "What the form does",
+          heading: "what the build form does",
           body: (
             <p>
-              The allocation request form is a front-end demonstration. Names, email addresses, regions, and build
-              choices you enter are validated in your browser and never transmitted to a server, stored, or shared.
-              Reloading the page clears them.
+              The build form is a front-end demonstration. Your name, email address and build choices are checked in
+              your browser and never sent to a server, stored or shared. Reloading the page clears them.
             </p>
           ),
         },
         {
-          heading: "Cookies and analytics",
+          heading: "cookies and analytics",
           body: <p>This site sets no cookies and runs no analytics, advertising, or tracking scripts.</p>,
         },
         {
-          heading: "Audio",
+          heading: "sound",
           body: (
             <p>
-              The acoustic test bench generates sound locally using your browser&apos;s Web Audio API. It does not
-              access your microphone.
+              The switch sounds are synthesized in your browser with the Web Audio API. Nothing is recorded, and the
+              site never asks for your microphone.
             </p>
           ),
         },
         {
-          heading: "Third-party requests",
+          heading: "what loads from where",
           body: (
             <p>
-              Fonts are served from this site&apos;s own domain. The 3D scene loads a lighting environment map from a
-              public content delivery network, and the hosting provider keeps standard server logs (such as IP address
-              and user agent) for security and performance. Those providers handle that data under their own policies.
+              Everything on this site — fonts, images and code — is served from the site&apos;s own address. Nothing is
+              loaded from third parties. The hosting provider keeps standard server logs (such as IP address and
+              browser type) for security and performance, and handles that data under its own policy.
             </p>
           ),
         },
         {
-          heading: "Questions",
+          heading: "questions",
           body: <p>Privacy questions about this concept site can be sent to HVNF Studios through its official channels.</p>,
         },
       ]}

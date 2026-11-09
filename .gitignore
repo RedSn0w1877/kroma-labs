@@ -1,3 +1,4 @@
+# © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -39,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# KL-75 render pipeline scratch (geometry export, raw Blender PNGs, previews)
+scripts/renders/.cache/

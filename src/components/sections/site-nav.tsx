@@ -2,157 +2,138 @@
 
 // © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { ArrowUpRight, Menu, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useScrollTo } from "@/components/providers/smooth-scroll";
-import { EASE_OUT } from "@/components/ui/reveal";
-import { COPYRIGHT_SHORT } from "@/lib/copyright";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Cap, capClass } from "@/components/ui/keycap";
+import { setState, useKroma } from "@/lib/kroma-state";
+import styles from "./site-nav.module.css";
 
-const LINKS = [
-  { href: "#schematic", label: "Schematic" },
-  { href: "#acoustics", label: "Acoustics" },
-  { href: "#specs", label: "Specs" },
+/**
+ * The function row (spec §6.1). Desktop and tablet: a right-anchored row of keycaps, top right, no bar.
+ * Phones: a bottom dock instead. Both are plain anchor links; the section in view sits pressed
+ * (aria-current="location"), driven by one IntersectionObserver and no scroll listener.
+ *
+ * The f-legends are labels only: physical F1–F12 are never captured (the key router ignores them), so
+ * they are hidden from assistive tech rather than announced as shortcuts that don't exist.
+ */
+
+const SECTIONS = [
+  { id: "sound", f: "f1", label: "sound" },
+  { id: "inside", f: "f2", label: "inside" },
+  { id: "specs", f: "f3", label: "specs" },
+  { id: "build", f: "f4", label: "build" },
 ] as const;
 
-export function SiteNav() {
-  const scrollTo = useScrollTo();
-  const [open, setOpen] = useState(false);
-  const header = useRef<HTMLElement>(null);
-  const menuButton = useRef<HTMLButtonElement>(null);
+type SectionId = (typeof SECTIONS)[number]["id"];
 
+/** Whichever watched section crosses the line 45% down the viewport. null in the hero and the footer. */
+function useCurrentSection(): SectionId | null {
+  const [current, setCurrent] = useState<SectionId | null>(null);
   useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        menuButton.current?.focus({ preventScroll: true });
-      }
-      if (event.key !== "Tab") return;
-      const controls = Array.from(header.current?.querySelectorAll<HTMLElement>("a[href],button") ?? [])
-        .filter((node) => node.getClientRects().length > 0);
-      const first = controls[0];
-      const last = controls[controls.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    };
-    const media = window.matchMedia("(min-width: 768px)");
-    const onResize = () => { if (media.matches) setOpen(false); };
-    document.addEventListener("keydown", onKey);
-    media.addEventListener("change", onResize);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      media.removeEventListener("change", onResize);
-    };
-  }, [open]);
+    const inBand = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) inBand.add(entry.target.id);
+          else inBand.delete(entry.target.id);
+        }
+        setCurrent(SECTIONS.find((section) => inBand.has(section.id))?.id ?? null);
+      },
+      { rootMargin: "-45% 0px -54% 0px" },
+    );
+    for (const section of SECTIONS) {
+      const element = document.getElementById(section.id);
+      if (element) observer.observe(element);
+    }
+    return () => observer.disconnect();
+  }, []);
+  return current;
+}
 
-  const onAnchor = (event: MouseEvent<HTMLAnchorElement>) => {
-    const href = event.currentTarget.getAttribute("href");
-    setOpen(false);
-    if (!href?.startsWith("#")) return;
-    event.preventDefault();
-    scrollTo(href);
-  };
+/** Appears once sound has actually played; pressed while muted. */
+function MuteKey({ className }: { className: string }) {
+  const muted = useKroma((s) => s.muted);
+  return (
+    <Cap as="button" type="button" className={className} aria-pressed={muted} onClick={() => setState({ muted: !muted })}>
+      mute
+    </Cap>
+  );
+}
+
+export function SiteNav() {
+  const current = useCurrentSection();
+  const soundReady = useKroma((s) => s.soundReady);
+  const here = (id: SectionId) => (current === id ? "location" : undefined);
 
   return (
-    <motion.header
-      ref={header}
-      initial={false}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: EASE_OUT }}
-      className="fixed inset-x-0 top-0 z-50 border-b border-hairline bg-carbon/95"
-    >
-      <nav aria-label="Primary" className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-6 px-5 md:px-10">
-        <a href="#top" onClick={onAnchor} className="flex items-center gap-2.5 font-display text-sm font-semibold tracking-[0.18em]">
-          <span aria-hidden className="block h-2.5 w-2.5 bg-signal" />
-          KROMA LABS
-        </a>
-
-        <p className="hidden items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-metric xl:flex">
-          <span aria-hidden className="block h-1.5 w-1.5 animate-led rounded-full bg-led" />
-          Batch 04 — 84/120 claimed
-        </p>
-
-        <div className="flex items-center gap-4 md:gap-8">
-          <ul className="hidden items-center gap-7 md:flex">
-            {LINKS.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  onClick={onAnchor}
-                  className="font-mono text-[11px] uppercase tracking-[0.18em] text-metric transition-colors hover:text-chalk"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <a
-            href="#allocation"
-            onClick={onAnchor}
-            className="hidden h-9 items-center gap-1.5 bg-signal px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-carbon transition-colors hover:bg-chalk sm:inline-flex"
+    <>
+      <nav aria-label="sections" className={styles.row} data-print-hide>
+        {/* The row is anchored right, so nothing moves when [mute] arrives at its left end. */}
+        {soundReady && <MuteKey className={styles.key} />}
+        {SECTIONS.map((section) => (
+          <Cap
+            key={section.id}
+            as="a"
+            href={`#${section.id}`}
+            top={section.f}
+            topHidden
+            className={styles.key}
+            aria-current={here(section.id)}
           >
-            Configure
-            <ArrowUpRight aria-hidden className="h-3.5 w-3.5" strokeWidth={2.25} />
-          </a>
-          <button
-            ref={menuButton}
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-11 w-11 items-center justify-center border border-hairline text-chalk md:hidden"
-          >
-            {open ? <X aria-hidden className="h-4 w-4" /> : <Menu aria-hidden className="h-4 w-4" />}
-          </button>
-        </div>
+            {section.label}
+          </Cap>
+        ))}
+        <Cap as="a" href="#order" tone="signal" top="enter ↵" topHidden className={`${styles.key} ${styles.order}`}>
+          order
+        </Cap>
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-nav"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: EASE_OUT }}
-            className="overflow-hidden border-t border-hairline bg-carbon md:hidden"
-          >
-            <ul className="flex flex-col divide-y divide-hairline px-5">
-              {LINKS.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={onAnchor}
-                    className="block py-4 font-mono text-xs uppercase tracking-[0.18em] text-metric transition-colors hover:text-chalk"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a
-                  href="#allocation"
-                  onClick={onAnchor}
-                  className="flex items-center justify-between py-4 font-mono text-xs uppercase tracking-[0.18em] text-signal"
-                >
-                  Configure
-                  <ArrowUpRight aria-hidden className="h-3.5 w-3.5" strokeWidth={2.25} />
-                </a>
-              </li>
-            </ul>
-            <p className="border-t border-hairline px-5 py-3 font-mono text-[9px] uppercase tracking-[0.16em] text-metric/70">
-              {COPYRIGHT_SHORT} · Do not redistribute
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+      <nav aria-label="sections" className={styles.dock} data-print-hide>
+        <Cap as="a" href="#top" top="↑" topHidden className={`${styles.dockKey} ${styles.dockTop}`}>
+          top
+        </Cap>
+        {SECTIONS.filter((section) => section.id !== "build").map((section) => (
+          <Cap key={section.id} as="a" href={`#${section.id}`} className={styles.dockKey} aria-current={here(section.id)}>
+            {section.label}
+          </Cap>
+        ))}
+        <Cap as="a" href="#build" tone="signal" className={styles.dockKey} aria-current={here("build")}>
+          build yours
+        </Cap>
+      </nav>
+      {soundReady && <MuteKey className={styles.muteMobile} />}
+    </>
+  );
+}
+
+/**
+ * The legal pages' one navigation key: [esc ← / back to kroma]. The legend promises Esc, so Esc works:
+ * it presses the key and goes home (outside text fields; the key's native behaviour is untouched).
+ */
+export function BackKey({ className }: { className?: string }) {
+  const router = useRouter();
+  const key = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.repeat || event.isComposing) return;
+      if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
+      const target = event.target;
+      if (target instanceof Element && target.closest("input, textarea, select, [contenteditable]")) return;
+      key.current?.setAttribute("data-down", "");
+      router.push("/");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
+
+  return (
+    <Link ref={key} href="/" className={capClass("cream", `${styles.back} ${className ?? ""}`.trim())}>
+      <span className="cap__top" aria-hidden>
+        esc ←
+      </span>
+      <span>back to kroma</span>
+    </Link>
   );
 }

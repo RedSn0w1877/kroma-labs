@@ -1,0 +1,280 @@
+/* © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. */
+
+/*
+ * The hero (spec §6.2). Desktop placement on the 16-column key grid:
+ *   row 1  wordmark, col 1–6, .7u tall (the function row sits top right, outside the page)
+ *   row 2  h1 col 2–11 in three nowrap lines; the red Enter key on line 3 at col 8–10;
+ *          the echo, its caption and the mini meter at col 12–16, starting one h1 line down
+ *   row 3  the two-line lede, col 2–10
+ * Then the board, full bleed, its empty top band tucked .14 frame-heights under the type, cropped by the
+ * section at .88 H so the front rail runs off the bottom of the first screen.
+ */
+
+.hero {
+  --frame-h: calc(100cqi / 2.4);
+  /* The h1's own size, so the echo can start exactly one line down. */
+  --h1-size: clamp(2.75rem, calc(var(--u) * 0.822), 7.25rem);
+  position: relative;
+  overflow: clip;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+@media (min-width: 640px) and (min-aspect-ratio: 1/1) {
+  .hero {
+    min-height: 100svh;
+  }
+}
+
+.type {
+  position: relative;
+  z-index: 2;
+  /* Row 1 is the wordmark plus .2u of air under it, so "kroma" never crowds the h1. */
+  grid-template-rows: calc(var(--u) * 0.9) auto auto;
+  align-content: start;
+  padding-top: calc(var(--u) * 0.4);
+}
+
+/* ---- row 1: wordmark ---------------------------------------------------------------------------- */
+.wordmark {
+  grid-row: 1;
+  grid-column: 1 / 7;
+  align-self: start;
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 0.25);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.mark {
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 780;
+  font-size: max(calc(var(--u) * 0.5), 1.75rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+/* ---- row 2: the h1, the Enter key and the echo ---------------------------------------------------- */
+.h1 {
+  grid-row: 2;
+  grid-column: 2 / 12;
+  margin: 0;
+  font-size: var(--h1-size);
+}
+
+/* Programmatic focus (Esc → back to the top) shouldn't draw a ring round a headline. */
+.h1:focus {
+  outline: none;
+}
+
+.l {
+  display: block;
+  white-space: nowrap;
+}
+
+.cta {
+  grid-row: 2;
+  grid-column: 8 / 11;
+  align-self: end;
+  justify-self: start;
+  /* As tall as line 3's caps, its bottom on the baseline: it can't reach up into "before" on line 2.
+     (The line box is .92em; the baseline sits .06em above its bottom.) */
+  height: max(calc(var(--h1-size) * 0.74), 52px);
+  margin-bottom: calc(var(--h1-size) * 0.06);
+  /* Legends grow with the key on big screens (a 2.25u key at 2560 px is 320 px wide). */
+  font-size: clamp(0.8125rem, calc(var(--u) * 0.12), 1.125rem);
+}
+
+/* Never under the 12 px floor; full strength on red (globals.css). */
+.cta :global(.cap__top) {
+  font-size: max(12px, 0.86em);
+}
+
+.side {
+  grid-row: 2 / 4;
+  grid-column: 12 / 17;
+  align-self: start;
+  margin-top: calc(var(--h1-size) * 0.92);
+  display: grid;
+  row-gap: calc(var(--u) * 0.12);
+  min-width: 0;
+}
+
+.echo {
+  font-family: var(--kroma-display);
+  font-stretch: 75%;
+  font-weight: 780;
+  font-size: clamp(100px, calc(var(--u) * 1.3), 180px);
+  line-height: 1.05;
+  height: 1.05em;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  white-space: pre;
+  display: flex;
+  align-items: flex-end;
+  overflow: clip;
+  /* Room for the landing glyph's short drop and squash. */
+  overflow-clip-margin: 0.1em;
+}
+
+.echoLine {
+  display: block;
+  width: 100%;
+  /* keymap.ts Echo steps the line down as it grows; the box above keeps its height. One-shot, no tween. */
+  font-size: 1em;
+  line-height: 1.05;
+}
+
+.echoLine[data-step="2"] {
+  font-size: 0.72em;
+}
+
+.echoLine[data-step="3"] {
+  font-size: 0.52em;
+}
+
+.caption {
+  margin: 0;
+  color: var(--ink-soft);
+  /* Two even lines rather than an orphaned "it" where columns 12–16 are narrow (1024–1400 px). */
+  text-wrap: balance;
+  font-size: clamp(0.8125rem, calc(var(--u) * 0.1), 1.0625rem);
+}
+
+.cStill {
+  display: none;
+}
+
+/* No attract run (reduced motion, or a lite device): say what to do rather than what happened. */
+@media (prefers-reduced-motion: reduce) {
+  .cAttract {
+    display: none;
+  }
+  .cStill {
+    display: inline;
+  }
+}
+
+:global(html[data-lite]) .cAttract,
+:global(html[data-attract="skipped"]) .cAttract {
+  display: none;
+}
+
+/* hero-board sets data-attract="skipped" when the run doesn't happen (a key was already pressed, the
+   renders were slow, or the board was off screen), so the caption never claims a run that didn't play. */
+:global(html[data-lite]) .cStill,
+:global(html[data-attract="skipped"]) .cStill {
+  display: inline;
+}
+
+.mini {
+  margin-top: calc(var(--u) * 0.05);
+}
+
+/* ---- row 3: the lede ------------------------------------------------------------------------------ */
+.lede {
+  grid-row: 3;
+  grid-column: 2 / 11;
+  max-width: none;
+  margin: calc(var(--u) * 0.25) 0 0;
+  /* 17/28 up to ~1600 px, then it grows with the grid so the lede doesn't shrink to a footnote at 2560. */
+  font-size: clamp(1.0625rem, calc(var(--u) * 0.155), 1.375rem);
+  line-height: 1.65;
+}
+
+/* ---- the board ------------------------------------------------------------------------------------ */
+.boardCrop {
+  align-self: end;
+  position: relative;
+  z-index: 1;
+  height: calc(var(--frame-h) * 0.88);
+  /* Where the type and the crop together outgrow 100svh (short, wide screens), tuck the render's empty
+     top band further under the lede so the spacebar row stays on the first screen. On a 16:10 screen the
+     crop is bottom-aligned to the viewport and this margin is slack. */
+  margin-top: calc(var(--frame-h) * -0.17);
+  overflow: clip;
+}
+
+/* ---- tablet: 640–1023 ----------------------------------------------------------------------------- */
+@media (max-width: 1023px) {
+  .h1 {
+    grid-column: 2 / 17;
+  }
+  /* The function row would cover the wordmark here (it is 490–580 px wide): start the type under it. */
+  .type {
+    grid-template-rows: auto auto auto auto;
+    padding-top: 76px;
+  }
+  .h1 {
+    margin-top: calc(var(--u) * 0.3);
+  }
+  /* A 52 px key is taller than a 44 px h1 line, so on tablets it can't sit on line 3 without reaching
+     into line 2: it gets its own row under the lede instead. */
+  .cta {
+    grid-row: 4;
+    grid-column: 2 / 9;
+    justify-self: start;
+    align-self: start;
+    width: max(calc(var(--u) * 2.25 - var(--g)), 9.5rem);
+    margin: calc(var(--u) * 0.4) 0 0;
+  }
+  .side {
+    display: none;
+  }
+  .lede {
+    grid-column: 2 / 15;
+  }
+}
+
+/* ---- phone: < 640. The type and the board interleave: wordmark, h1, board, lede, Enter key --------- */
+@media (max-width: 639px) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+  .type {
+    display: contents;
+  }
+  .wordmark,
+  .h1,
+  .lede,
+  .cta {
+    margin-inline: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .wordmark {
+    order: 1;
+    align-self: flex-start;
+    min-height: 56px;
+    padding-top: 12px;
+  }
+  .h1 {
+    order: 2;
+    margin-top: 12px;
+    /* Measured 0.600em advance: four lines at 320–639 px. */
+    font-size: clamp(2rem, calc((100cqi - 32px) / 8.9), 2.75rem);
+  }
+  .l {
+    display: inline;
+    white-space: normal;
+  }
+  .boardCrop {
+    order: 3;
+    height: auto;
+    margin-top: 16px;
+  }
+  /* The key comes before the lede, so the fixed bottom dock never covers it on the first screen. */
+  .cta {
+    order: 4;
+    width: calc(var(--u) * 4 - var(--g));
+    margin-block: 16px 0;
+    align-self: flex-start;
+  }
+  .lede {
+    order: 5;
+    margin-block: 16px 24px;
+  }
+}

@@ -1,0 +1,30 @@
+<!doctype html><!-- © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute. --><meta charset=utf-8><title>fp</title><script type=module>
+import { SwitchSynth } from "./switch-synth.js";
+import { SWITCH_PROFILES } from "./switch-profiles.js";
+const BAR_COUNT=36, MAX_BIN=200;
+function toBars(spectrum){return Array.from({length:BAR_COUNT},(_,i)=>{const start=Math.floor(MAX_BIN**(i/BAR_COUNT));const end=Math.max(start+1,Math.floor(MAX_BIN**((i+1)/BAR_COUNT)));let sum=0;for(let b=start;b<end;b++)sum+=spectrum[b]??0;const level=(sum/(end-start)/255)**0.85;return Math.max(0.04,Math.min(1,level));});}
+function prng(seed){let a=seed>>>0;return()=>{a=(a+0x6d2b79f5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+window.__fp = async () => {
+  const res = {};
+  for (const p of SWITCH_PROFILES) {
+    const acc = new Float64Array(BAR_COUNT); const RUNS = 8;
+    for (let r = 0; r < RUNS; r++) {
+      Math.random = prng(1000 + r * 77);
+      const sr = 48000; const ctx = new OfflineAudioContext(2, Math.round(sr * 0.75), sr);
+      window.AudioContext = function () { return ctx; };
+      const synth = new SwitchSynth();
+      synth.strike(p.voice);
+      const mem = new Float32Array(BAR_COUNT);
+      const seen = new Set();
+      for (let t = 1 / 60; t < 0.65; t += 1 / 60) {
+        const q = Math.ceil((t * sr) / 128) * 128 / sr; if (seen.has(q)) continue; seen.add(q);
+        ctx.suspend(q).then(() => { const bins = synth.readSpectrum(); if (bins) toBars(bins).forEach((v, i) => (mem[i] = Math.max(mem[i], v))); ctx.resume(); });
+      }
+      await ctx.startRendering();
+      mem.forEach((v, i) => (acc[i] += v / RUNS));
+    }
+    res[p.id] = Array.from(acc, (v) => Math.round(v * 1000) / 1000);
+  }
+  return res;
+};
+</script>
