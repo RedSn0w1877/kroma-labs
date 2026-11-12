@@ -79,13 +79,30 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 }
 
 // ---- the preview's images ----------------------------------------------------------------------------
-const render = (name: string, ext: "avif" | "webp") => asset(`/renders/kl75-build-${name}-1200.${ext}`);
+// Each render ships at 600 and 1200 px wide; srcset + sizes let a 1x screen take the 600 (the brass box is
+// ~320 px wide on desktop) and a 2x screen the 1200. The sizes follow build.module.css: the preview spans
+// columns 9–16 (≈45vw) from 1024 px and the full width below; the brass takes half of it, then all of it.
+const WIDTHS = [600, 1200] as const;
+type Width = (typeof WIDTHS)[number];
+const render = (name: string, ext: "avif" | "webp", w: Width = 1200) => asset(`/renders/kl75-build-${name}-${w}.${ext}`);
+const srcSet = (name: string, ext: "avif" | "webp") => WIDTHS.map((w) => `${render(name, ext, w)} ${w}w`).join(", ");
+const BOARD_SIZES = "(min-width: 1024px) 45vw, 100vw";
+const BRASS_SIZES = "(min-width: 1024px) 22vw, (min-width: 640px) 48vw, 100vw";
 
 function Render({ name, on, alt }: { name: string; on: boolean; alt: string }) {
   return (
     <picture className={styles.render} data-on={on || undefined}>
-      <source type="image/avif" srcSet={render(name, "avif")} />
-      <img src={render(name, "webp")} alt={on ? alt : ""} width={1200} height={700} loading="lazy" decoding="async" />
+      <source type="image/avif" srcSet={srcSet(name, "avif")} sizes={BOARD_SIZES} />
+      <img
+        src={render(name, "webp")}
+        srcSet={srcSet(name, "webp")}
+        sizes={BOARD_SIZES}
+        alt={on ? alt : ""}
+        width={1200}
+        height={700}
+        loading="lazy"
+        decoding="async"
+      />
     </picture>
   );
 }
@@ -103,12 +120,14 @@ function usePrimedRenders(): ReadonlySet<string> {
       section.removeEventListener("focusin", prime);
       section.removeEventListener("pointerdown", prime);
       void import("./ticket"); // warm the ticket chunk too, so the print follows the ka-chunk without a gap
-      // Same format the browser chose for the defaults, so the swap reuses the decoded bytes.
+      // Same format and width the browser chose for the defaults, so the swap reuses the decoded bytes.
       const shown = section.querySelector<HTMLImageElement>(`.${styles.render} img`);
-      const ext = shown?.currentSrc.endsWith(".webp") ? "webp" : "avif";
+      const picked = shown?.currentSrc.match(/-(600|1200)\.(avif|webp)$/);
+      const ext = picked?.[2] === "webp" ? "webp" : "avif";
+      const w: Width = picked?.[1] === "600" ? 600 : 1200;
       for (const name of ["case-silver", "case-black", "caps-yolk"]) {
         const img = new Image();
-        img.src = render(name, ext);
+        img.src = render(name, ext, w);
         img
           .decode()
           .catch(() => undefined) // e.g. no AVIF: the <picture> will pick the WebP itself
@@ -284,9 +303,11 @@ export function BuildForm({ brassField, brassCap }: { brassField: [number, numbe
 
         <figure className={styles.brass}>
           <picture>
-            <source type="image/avif" srcSet={render("brass", "avif")} />
+            <source type="image/avif" srcSet={srcSet("brass", "avif")} sizes={BRASS_SIZES} />
             <img
               src={render("brass", "webp")}
+              srcSet={srcSet("brass", "webp")}
+              sizes={BRASS_SIZES}
               alt="The brass weight inside the KL-75, close up, where your engraving goes."
               width={1200}
               height={700}

@@ -62,8 +62,10 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Scrolling is instant by default, so Tab focus, Enter on a link and Esc never glide. A pointer click on
+     an in-page link sets data-glide for that one jump (src/lib/glide.ts). */
   @media (prefers-reduced-motion: no-preference) {
-    html { scroll-behavior: smooth; }
+    html[data-glide] { scroll-behavior: smooth; }
     /* The mat re-chrome: the only page-level transition. */
     body { transition: background-color 240ms linear; }
   }
@@ -141,9 +143,10 @@
     .ug { grid-template-columns: repeat(8, calc(var(--u) - var(--g))); padding-inline: 16px; }
     /* Room for the fixed bottom dock (site-nav): its 52 px keys, the 8 px it floats above the edge, the
        skirt and cast shadow under the keys (~10 px) and a 16 px breath, plus the home-indicator inset. */
-    .page { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
+    :root { --dock-clear: calc(86px + env(safe-area-inset-bottom)); }
+    .page { padding-bottom: var(--dock-clear); }
     /* Focused or scrolled-to elements stop above the dock, never under it. */
-    html { scroll-padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
+    html { scroll-padding-bottom: var(--dock-clear); }
   }
 
   /* The only separator between sections: one key-gap tall, full bleed. */

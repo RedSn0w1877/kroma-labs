@@ -375,6 +375,8 @@ async function buildSet() {
     }
     const clean = async () => sharp(await (await cleanShadow(src, FIGURE_EDGES)).png().toBuffer());
     results.push(await encode(`kl75-build-${n}-1200`, clean, 40, src));
+    // The 1x size: the preview box is ~600 px wide at most on a 1x screen (srcset in build-form.tsx).
+    results.push(await encode(`kl75-build-${n}-600`, async () => (await clean()).resize(600, 350, { kernel: "lanczos3" }), 14, src));
   }
 }
 
@@ -382,6 +384,7 @@ async function brassSet() {
   const meta = readMeta("brass");
   const src = png("brass", "brass.png");
   results.push(await encode("kl75-build-brass-1200", () => sharp(src), 35, src));
+  results.push(await encode("kl75-build-brass-600", () => sharp(src).resize(600, 350, { kernel: "lanczos3" }), 8, src));
   const [x, y, w, h] = meta.field;
   writeData("kl75-brass.json", {
     w: meta.w,

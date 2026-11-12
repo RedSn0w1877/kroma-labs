@@ -6,7 +6,6 @@ import type { Board } from "./board-engine";
 import { CODE_TO_SLOT, Echo, SLOT, VOICE_BY_DIGIT, isFunctionKey } from "@/lib/keymap";
 import { getState, setState } from "@/lib/kroma-state";
 import { strike } from "@/lib/sound";
-import { prefersReducedMotion } from "@/lib/use-client-flags";
 
 /**
  * The input router (spec §7): one keydown/keyup pair on window that decides what a physical key does,
@@ -136,7 +135,8 @@ export function startKeyRouter(board: BoardHandle): () => void {
         pressBoard(e.code, SLOT.esc);
         strikeInStep();
       }
-      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      // A key press: jump, never glide (src/lib/glide.ts).
+      window.scrollTo({ top: 0, behavior: "instant" });
       document.getElementById("top-title")?.focus({ preventScroll: true });
       return;
     }

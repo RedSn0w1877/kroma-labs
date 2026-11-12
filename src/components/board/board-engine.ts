@@ -301,7 +301,8 @@ export async function createBoard(root: HTMLElement): Promise<Board> {
     ready: readyPromise,
     isReady: () => ready,
     attract(echo, onDone) {
-      const word = "kroma";
+      // Not "kroma": the wordmark already says it top left, so the board types a greeting instead.
+      const word = "hello";
       const slots = [...word].map((ch) => keys.find((k) => k.t === ch)?.s);
       echo?.clear();
       const later = (ms: number, fn: () => void) => {
@@ -316,7 +317,10 @@ export async function createBoard(root: HTMLElement): Promise<Board> {
           if (slot !== undefined) board.press(slot);
           echo?.type(word[i]);
         });
-        later(i * 90 + 110, () => {
+        // Keys overlap a little (110 ms held, 90 ms apart) like real rollover, except a doubled letter
+        // ("ll"), whose first press lets go before the second one lands.
+        const hold = slots[i + 1] === slot ? 70 : 110;
+        later(i * 90 + hold, () => {
           if (slot !== undefined) board.release(slot);
           if (i === slots.length - 1) {
             echo?.rearm();

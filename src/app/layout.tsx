@@ -34,6 +34,15 @@ const hanken = Hanken_Grotesk({
 const display = martian.style.fontFamily.split(",")[0].trim();
 const htmlStyle = { "--kroma-display": `${display}, "kroma-display-fallback", ui-monospace, monospace` } as CSSProperties;
 
+const SITE_URL = "https://redsn0w1877.github.io/kroma-labs/";
+const SHARE_IMAGE = {
+  url: `${SITE_URL}share/kl75-share-1200x630.jpg`,
+  width: 1200,
+  height: 630,
+  type: "image/jpeg",
+  alt: "The Kroma KL-75 Monolith, a dark aluminum mechanical keyboard with cream and grey keys, on a yellow mat under the headline “a mechanical keyboard you can hear before you buy it.”",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Kroma KL-75 Monolith — a mechanical keyboard you can hear before you buy it",
@@ -42,6 +51,23 @@ export const metadata: Metadata = {
   description:
     "The KL-75 Monolith is a 75% mechanical keyboard machined from one block of aluminum. Press any key to hear its three switches, synthesized live in your browser. A portfolio concept by HVNF Studios.",
   applicationName: "Kroma",
+  // The share tile (scripts/share-tile.mjs): the first screen at 1200×630. GitHub Pages serves the site at
+  // SITE_URL, and share cards need an absolute URL. The legal pages inherit it.
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    type: "website",
+    siteName: "Kroma",
+    title: "Kroma KL-75 Monolith — a mechanical keyboard you can hear before you buy it",
+    description:
+      "A 75% mechanical keyboard machined from one block of aluminum. Press any key to hear its three switches. A portfolio concept by HVNF Studios.",
+    images: [SHARE_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kroma KL-75 Monolith — a mechanical keyboard you can hear before you buy it",
+    description: "A 75% mechanical keyboard machined from one block of aluminum. Press any key to hear its three switches.",
+    images: [SHARE_IMAGE],
+  },
   authors: [{ name: STUDIO }],
   creator: STUDIO,
   publisher: STUDIO,

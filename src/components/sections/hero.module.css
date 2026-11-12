@@ -292,10 +292,14 @@
     display: inline;
     white-space: normal;
   }
+  /* The phone render's top 191/1170 of its width is empty mat. Tuck that band under the h1 so the case
+     starts 24 px below the type: the whole first screen (h1, board, key, the KL-75 intro) then ends above
+     the dock (--dock-clear) at 390×844 instead of the intro sliding under it. A % margin is a share of
+     the hero's width, which is the render's width, so the tuck scales with it and needs no container unit. */
   .boardCrop {
     order: 3;
     height: auto;
-    margin-top: 16px;
+    margin-top: calc(24px - 16.32%);
   }
   /* The copyright sits on the mat right under the board, at its right edge, where the dock can't cover it.
      Then the key and the sound link, before the lede, so the fixed bottom dock never covers them on the

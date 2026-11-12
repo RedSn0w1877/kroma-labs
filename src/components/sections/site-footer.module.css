@@ -93,6 +93,12 @@
   padding-inline: 4px;
 }
 
+/* The first link's padding hangs into the margin, so "terms of use" starts on the column line like the
+   note and the © key below it. */
+.legal a:first-child {
+  margin-inline-start: -4px;
+}
+
 .sideprint {
   display: flex;
   align-items: center;

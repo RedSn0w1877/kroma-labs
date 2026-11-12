@@ -4,7 +4,7 @@
 
 import { useEffect, useRef } from "react";
 import { Cap } from "@/components/ui/keycap";
-import { prefersReducedMotion } from "@/lib/use-client-flags";
+import { glideAllowed } from "@/lib/glide";
 import { SHIPS, barcode, buildLines, type Build } from "@/lib/build-code";
 import styles from "./ticket.module.css";
 
@@ -54,7 +54,8 @@ export default function Ticket({
     // transform doesn't move layout), so this scrolls to where the ticket ends up, not where it starts.
     h.closest("article")?.parentElement?.scrollIntoView({
       block: "nearest",
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      // Glides after a clicked [order]; jumps after Enter (src/lib/glide.ts).
+      behavior: glideAllowed() ? "smooth" : "instant",
     });
   }, []);
 

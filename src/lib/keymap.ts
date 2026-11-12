@@ -101,7 +101,7 @@ export class Echo {
       if (space >= 0 && space - cut <= 4 && space < glyphs.length - 1) cut = space + 1;
       for (let i = 0; i < cut; i++) glyphs[i].remove();
     }
-    // No attribute means step 1, so a short line (the server "kroma", the attract run) never writes one:
+    // No attribute means step 1, so a short line (the server "hello", the attract run) never writes one:
     // at hydration a write here would invalidate style and force another whole-page layout.
     const value = step === 0 ? undefined : String(step + 1);
     if (this.el.dataset.step === value) return;
@@ -109,14 +109,14 @@ export class Echo {
     else delete this.el.dataset.step;
   }
 
-  /** Drop everything, including the server-rendered "kroma". */
+  /** Drop everything, including the server-rendered "hello". */
   clear(): void {
     this.el.textContent = "";
     this.fresh = false;
     this.fit();
   }
 
-  /** The first real keystroke replaces the server or attract "kroma". */
+  /** The first real keystroke replaces the server or attract "hello". */
   type(char: string): void {
     if (this.fresh) this.clear();
     const glyph = document.createElement("span");
@@ -132,7 +132,7 @@ export class Echo {
     this.fit();
   }
 
-  /** Arm the echo so the next keystroke clears it (after the attract run re-types "kroma"). */
+  /** Arm the echo so the next keystroke clears it (after the attract run re-types "hello"). */
   rearm(): void {
     this.fresh = true;
   }

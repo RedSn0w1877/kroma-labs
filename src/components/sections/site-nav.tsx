@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Cap, capClass } from "@/components/ui/keycap";
+import { installGlide } from "@/lib/glide";
 import { setState, useKroma } from "@/lib/kroma-state";
 import styles from "./site-nav.module.css";
 
@@ -63,6 +64,8 @@ function MuteKey({ className }: { className: string }) {
 
 export function SiteNav() {
   const current = useCurrentSection();
+  // Every in-page link on the page jumps instantly from the keyboard and glides only on a pointer click.
+  useEffect(() => installGlide(), []);
   const soundReady = useKroma((s) => s.soundReady);
   const here = (id: SectionId) => (current === id ? "location" : undefined);
 

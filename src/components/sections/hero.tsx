@@ -13,7 +13,8 @@ import styles from "./hero.module.css";
  * KL-75 that bleeds off the bottom of the first screen, its home row lined up with page columns 1–16.
  *
  * The three h1 lines are explicit and nowrap on desktop, so the box is identical before and after the
- * font swap. The echo starts on line 2 at columns 12–16 so it can never touch line 1, and the lede sentence
+ * font swap. The echo (server text "hello", the word the attract run types; not a second "kroma", which
+ * the wordmark already carries) starts on line 2 at columns 12–16 so it can never touch line 1, and the lede sentence
  * that needs JS ("Press any key…") is gated by html.js and pointer. The red Enter key has its own row under
  * the lede, beside the link to the sound section, so it never collides with the headline (polish round).
  * The copyright sits as a quiet corner mark at the end of that row, on the mat, not on the product.
@@ -41,7 +42,7 @@ export function Hero() {
         <div className={styles.side}>
           <div className={styles.echo} aria-hidden="true">
             <span className={styles.echoLine} data-echo>
-              kroma
+              hello
             </span>
           </div>
           <p className={`t-ui-sm js-only ${styles.caption}`}>

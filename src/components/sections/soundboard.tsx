@@ -16,8 +16,7 @@ export function Soundboard() {
         hear the difference
       </h2>
       <p className={`t-lede ${styles.intro}`}>
-        Pick a switch and type: every key you press plays it, synthesized live in your browser. No recordings, nothing
-        sent anywhere.
+        Pick a switch and type: every key you press plays it. No recordings, nothing sent anywhere.
         <span className="explain">
           {" "}
           A switch is the small spring-loaded part under every key. It decides how a press feels and how it sounds.

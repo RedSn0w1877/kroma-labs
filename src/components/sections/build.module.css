@@ -125,7 +125,8 @@
 
 /* Mat: 1u felt swatches. */
 .swatches { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 0.3); }
-.swatchOpt { display: grid; justify-items: center; row-gap: 8px; border-radius: 10px; }
+/* The name sits on the swatch's left edge, like a keycap legend, so "yolk" starts on the column line. */
+.swatchOpt { display: grid; justify-items: start; row-gap: 8px; border-radius: 10px; }
 .felt {
   width: max(44px, var(--u));
   height: max(44px, var(--u));
