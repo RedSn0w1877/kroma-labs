@@ -24,6 +24,8 @@ export type KromaState = {
   /** True when this browser has no Web Audio; the sound section shows its notice. */
   unsupported: boolean;
   mat: Mat;
+  /** The [explain] key: beginner explanations shown (true) or folded behind the spec (false). */
+  explain: boolean;
 };
 
 /** What the server renders and what hydration sees. */
@@ -33,6 +35,7 @@ export const DEFAULT_STATE: Readonly<KromaState> = Object.freeze({
   soundReady: false,
   unsupported: false,
   mat: "yolk",
+  explain: false,
 });
 
 /** <meta name="theme-color"> per mat, so the browser chrome follows the page. */

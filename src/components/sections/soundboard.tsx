@@ -1,5 +1,6 @@
 // © 2026 HVNF Studios. All rights reserved. Portfolio sample — do not redistribute.
 
+import { ExplainKey } from "@/components/ui/explain-key";
 import { SoundPanel } from "./sound-panel";
 import styles from "./soundboard.module.css";
 
@@ -14,10 +15,15 @@ export function Soundboard() {
       <h2 id="sound-title" className={`t-h2 ${styles.title}`}>
         hear the difference
       </h2>
-      <p className={`t-body ${styles.intro}`}>
-        A switch is the small spring-loaded part under every key. It decides how a press feels and how it sounds. Pick one
-        and type: every key you press plays it, synthesized live in your browser. No recordings, nothing sent anywhere.
+      <p className={`t-lede ${styles.intro}`}>
+        Pick a switch and type: every key you press plays it, synthesized live in your browser. No recordings, nothing
+        sent anywhere.
+        <span className="explain">
+          {" "}
+          A switch is the small spring-loaded part under every key. It decides how a press feels and how it sounds.
+        </span>
       </p>
+      <ExplainKey className={styles.explainKey} />
       <SoundPanel />
     </section>
   );

@@ -22,7 +22,6 @@ from mathutils import Matrix, Vector, kdtree
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, ".cache")
-COPYRIGHT_SIDE = "\u00a9 2026 HVNF STUDIOS \u00b7 DO NOT REDISTRIBUTE"
 BRASS_LINES = ("KROMA \u00b7 KL-75 MONOLITH", "\u00a9 2026 HVNF STUDIOS \u00b7 DO NOT REDISTRIBUTE")
 SILK_LINES = ("KL75-PCB REV C", "\u00a9 2026 HVNF STUDIOS")
 MACRO_MARK = "KROMA \u00b7 KL-75 \u00b7 \u00a9 2026 HVNF STUDIOS"
@@ -623,7 +622,6 @@ def legend_specs(s, data):
 
 def build_keycaps(data, M, deck, font, cache):
     meshes = import_caps(cache)
-    U, GAP = data["KEY_UNIT"], data["KEY_GAP"]
     caps = []
     for s in data["slots"]:
         prof = data["ROW_PROFILE"][s["row"]]
@@ -645,21 +643,9 @@ def build_keycaps(data, M, deck, font, cache):
             t.material_slots[0].link = "OBJECT"
             t.visible_shadow = False
             legends.append(t)
-        if s["label"] == "":
-            # Side-printed watermark on the spacebar's front skirt, following the skirt's taper.
-            d = U - GAP
-            z = -0.004
-            t_frac = (z + h / 2) / h
-            face_y = -(d / 2) * (1 - 0.2 * t_frac * t_frac)
-            slope = math.atan(0.2 * 2 * t_frac * (d / 2) / h)
-            cu = text_curve("side_print", COPYRIGHT_SIDE, font, 0.032)
-            t = link(bpy.data.objects.new("side_print", cu), o)
-            t.location = (0, face_y - 0.0012, z)
-            t.rotation_euler.x = math.radians(90) - slope
-            t.data.materials.append(M["ink_cream"])
-            t.material_slots[0].link = "OBJECT"
-            t.visible_shadow = False
-            legends.append(t)
+        # No side print on the spacebar (polish round): the copyright reads as a stock watermark on the
+        # product. The page carries it as a corner mark beside the board; the brass engraving and the PCB
+        # silkscreen keep theirs.
         caps.append({"obj": o, "slot": s, "legends": legends, "h": h})
     return caps
 

@@ -3,11 +3,14 @@
 /*
  * The hero (spec §6.2). Desktop placement on the 16-column key grid:
  *   row 1  wordmark, col 1–6, .7u tall (the function row sits top right, outside the page)
- *   row 2  h1 col 2–11 in three nowrap lines; the red Enter key on line 3 at col 8–10;
+ *   row 2  h1 col 2–11 in three nowrap lines;
  *          the echo, its caption and the mini meter at col 12–16, starting one h1 line down
  *   row 3  the two-line lede, col 2–10
- * Then the board, full bleed, its empty top band tucked .14 frame-heights under the type, cropped by the
- * section at .88 H so the front rail runs off the bottom of the first screen.
+ *   row 4  the red Enter key [build yours / from $640] and "hear the three switches ↓" beside it, col 2–11;
+ *          the copyright corner mark at the far end of the row, col 12–16
+ * Then the board, full bleed, its empty top band tucked under the type, cropped by the section at .88 H
+ * so the front rail runs off the bottom of the first screen. The fourth row takes up the idle mat band
+ * that used to sit between the lede and the board, so the headline and the keyboard meet.
  */
 
 .hero {
@@ -30,7 +33,7 @@
   position: relative;
   z-index: 2;
   /* Row 1 is the wordmark plus .2u of air under it, so "kroma" never crowds the h1. */
-  grid-template-rows: calc(var(--u) * 0.9) auto auto;
+  grid-template-rows: calc(var(--u) * 0.9) auto auto auto;
   align-content: start;
   padding-top: calc(var(--u) * 0.4);
 }
@@ -74,17 +77,40 @@
   white-space: nowrap;
 }
 
+/* ---- row 4: the Enter key and the way to the sound section, then the corner mark ------------------ */
+.actions {
+  grid-row: 4;
+  grid-column: 2 / 12;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.3);
+  margin-top: calc(var(--u) * 0.32);
+}
+
 .cta {
-  grid-row: 2;
-  grid-column: 8 / 11;
-  align-self: end;
-  justify-self: start;
-  /* As tall as line 3's caps, its bottom on the baseline: it can't reach up into "before" on line 2.
-     (The line box is .92em; the baseline sits .06em above its bottom.) */
-  height: max(calc(var(--h1-size) * 0.74), 52px);
-  margin-bottom: calc(var(--h1-size) * 0.06);
+  flex: none;
+  height: max(calc(var(--u) * 0.72), 52px);
   /* Legends grow with the key on big screens (a 2.25u key at 2560 px is 320 px wide). */
   font-size: clamp(0.8125rem, calc(var(--u) * 0.12), 1.125rem);
+}
+
+/* A full 44 px target that still reads as a line of text beside the key. */
+.listen {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: clamp(0.875rem, calc(var(--u) * 0.13), 1.0625rem);
+}
+
+/* The copyright, printed small on the mat at the end of the row, right above the board. */
+.corner {
+  grid-row: 4;
+  grid-column: 12 / 17;
+  justify-self: end;
+  align-self: end;
+  margin: 0 0 2px;
+  color: var(--ink-soft);
+  white-space: nowrap;
 }
 
 /* Never under the 12 px floor; full strength on red (globals.css). */
@@ -176,12 +202,13 @@
 /* ---- row 3: the lede ------------------------------------------------------------------------------ */
 .lede {
   grid-row: 3;
-  grid-column: 2 / 11;
+  /* 9.9u is ~72 characters of the mono at 15 px: two lines, not three with an orphan. */
+  grid-column: 2 / 12;
   max-width: none;
   margin: calc(var(--u) * 0.25) 0 0;
-  /* 17/28 up to ~1600 px, then it grows with the grid so the lede doesn't shrink to a footnote at 2560. */
-  font-size: clamp(1.0625rem, calc(var(--u) * 0.155), 1.375rem);
-  line-height: 1.65;
+  /* The house mono at 15 px up to ~1600 px, then it grows with the grid so it doesn't shrink to a
+     footnote at 2560. */
+  font-size: clamp(0.9375rem, calc(var(--u) * 0.135), 1.1875rem);
 }
 
 /* ---- the board ------------------------------------------------------------------------------------ */
@@ -204,21 +231,24 @@
   }
   /* The function row would cover the wordmark here (it is 490–580 px wide): start the type under it. */
   .type {
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto;
     padding-top: 76px;
   }
   .h1 {
     margin-top: calc(var(--u) * 0.3);
   }
-  /* A 52 px key is taller than a 44 px h1 line, so on tablets it can't sit on line 3 without reaching
-     into line 2: it gets its own row under the lede instead. */
+  .actions {
+    grid-column: 2 / 17;
+    margin-top: calc(var(--u) * 0.4);
+  }
   .cta {
-    grid-row: 4;
-    grid-column: 2 / 9;
-    justify-self: start;
-    align-self: start;
     width: max(calc(var(--u) * 2.25 - var(--g)), 9.5rem);
-    margin: calc(var(--u) * 0.4) 0 0;
+  }
+  .corner {
+    grid-row: 5;
+    grid-column: 2 / 17;
+    justify-self: start;
+    margin-top: calc(var(--u) * 0.3);
   }
   .side {
     display: none;
@@ -240,7 +270,8 @@
   .wordmark,
   .h1,
   .lede,
-  .cta {
+  .actions,
+  .corner {
     margin-inline: 16px;
     position: relative;
     z-index: 2;
@@ -266,15 +297,28 @@
     height: auto;
     margin-top: 16px;
   }
-  /* The key comes before the lede, so the fixed bottom dock never covers it on the first screen. */
-  .cta {
+  /* The copyright sits on the mat right under the board, at its right edge, where the dock can't cover it.
+     Then the key and the sound link, before the lede, so the fixed bottom dock never covers them on the
+     first screen. The link wraps to two short lines beside the key rather than under it. */
+  .corner {
     order: 4;
-    width: calc(var(--u) * 4 - var(--g));
+    align-self: flex-end;
+    margin-block: 8px 0;
+  }
+  .actions {
+    order: 5;
     margin-block: 16px 0;
-    align-self: flex-start;
+    gap: 16px;
+  }
+  .cta {
+    width: calc(var(--u) * 4 - var(--g));
+  }
+  .listen {
+    flex: 1 1 0;
+    min-width: 0;
   }
   .lede {
-    order: 5;
+    order: 6;
     margin-block: 16px 24px;
   }
 }

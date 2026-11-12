@@ -19,9 +19,9 @@ export function Build() {
       <h2 id="build-title" className={`t-h2 ${styles.title}`}>
         build yours
       </h2>
-      <p className={`t-body ${styles.intro}`}>
-        Pick a mat, a case, keycaps and a switch. You&apos;ll hear the switch as you choose it. Press enter to order and
-        we&apos;ll print you a ticket.
+      <p className={`t-lede ${styles.intro}`}>
+        Pick a case, keycaps and a switch: you&apos;ll hear the switch as you choose it. $640, ships in about 3 weeks.
+        The order is a demo: nothing is charged or sent, and you get a printed ticket.
       </p>
       <BuildForm brassField={[x / 1e4, y / 1e4, w / 1e4, h / 1e4]} brassCap={brass.capHeight} />
     </section>

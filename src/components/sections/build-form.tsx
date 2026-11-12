@@ -316,7 +316,7 @@ export function BuildForm({ brassField, brassCap }: { brassField: [number, numbe
       {/* ---- the form ---- */}
       <form id="build-form" className={styles.form} noValidate onSubmit={onSubmit}>
         <fieldset className={styles.set}>
-          <legend className="t-ui">mat</legend>
+          <legend className="t-ui">page colour</legend>
           <div className={styles.swatches}>
             {MATS.map((m) => (
               <Choice key={m} name="mat" value={m} checked={mat === m} onChange={setMat} face="swatch">
@@ -325,7 +325,7 @@ export function BuildForm({ brassField, brassCap }: { brassField: [number, numbe
               </Choice>
             ))}
           </div>
-          <p className={`t-ui-sm ${styles.help}`}>the felt your keyboard sits on. it changes this whole page.</p>
+          <p className={`t-ui-sm ${styles.help}`}>recolours this page, like the felt mat in the photos. not part of the build.</p>
         </fieldset>
 
         <fieldset className={styles.set}>
@@ -449,7 +449,7 @@ export function BuildForm({ brassField, brassCap }: { brassField: [number, numbe
         </div>
 
         <div id="order" className={styles.order}>
-          <p className={`t-ui js-only ${styles.hint}`}>press enter to order. we&apos;ll print you a ticket.</p>
+          <p className={`t-ui js-only ${styles.hint}`}>press enter for a demo order: nothing is charged, you get a ticket.</p>
           <Cap
             as="button"
             type="submit"

@@ -53,12 +53,12 @@ export function switchOf(id: SwitchId) {
   return SWITCHES.find((s) => s.id === id) ?? SWITCHES[1];
 }
 
-/** The mirror's and the ticket's lines, in order (§14). */
+/** The mirror's and the ticket's lines, in order (§14). The page colour (the mat) is not a product, so it
+ *  has no line; it only tints the ticket code. */
 export function buildLines(build: Build): { k: string; v: string }[] {
   const sw = switchOf(build.voice);
   const engraved = build.engraving.trim();
   return [
-    { k: "mat", v: `${build.mat} felt` },
     { k: "case", v: `${build.caseFinish} anodized` },
     { k: "switch", v: `${sw.type} (${sw.weight})` },
     { k: "keycaps", v: build.caps },

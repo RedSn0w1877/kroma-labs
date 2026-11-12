@@ -22,6 +22,7 @@
 .copy { grid-column: 2 / 7; align-self: center; }
 .title { margin: 0; white-space: nowrap; } /* one line: it runs over the figure's empty top band */
 .intro { margin: calc(var(--u) * 0.18) 0 0; color: var(--ink-soft); }
+.explainKey { margin-top: calc(var(--u) * 0.22); }
 .scrollOnly { display: none; }
 
 .layers {
@@ -51,9 +52,9 @@
 }
 .itemText { min-width: 0; }
 .itemTitle { margin: 3px 0 0; }
-.itemBody { margin: 2px 0 0; font-size: 0.875rem; line-height: 1.32rem; }
-/* Facts keep their units' case (Hz, USB-C, 20A). */
-.facts { margin: 4px 0 0; color: var(--ink-soft); text-transform: none; font-weight: 440; }
+.itemBody { margin: 4px 0 0; font-size: 0.875rem; line-height: 1.32rem; color: var(--ink-soft); }
+/* The spec line leads under each title. Facts keep their units' case (Hz, USB-C, 20A, FR4). */
+.facts { margin: 2px 0 0; text-transform: none; font-weight: 500; text-wrap: pretty; }
 
 /* ---- figure: columns 7–16, clear of the fixed function row ----------------------------------------- */
 .figure {
@@ -95,7 +96,17 @@
     top: 0;
     height: 100svh;
     align-content: center;
+    box-sizing: border-box;
+    padding-block: 16px;
   }
+  /* The function row is fixed over the top 60 px of the right-hand columns, where the figure sits. The
+     figure is centred, 80 px of lift room plus the frame, so capping the frame at (100svh − 208 px) tall
+     keeps the figure's top, and the highest lifted keycap, at least 64 px down: never under the keys,
+     on any screen height (polish round). The copy column, clear of the row, keeps the full height. */
+  :global(.fx) .frame { width: min(100%, calc((100svh - 208px) * 1.6)); }
+  /* With the explanations unfolded the list can outgrow a short screen: it scrolls on its own then, and
+     hands the wheel back to the page at either end. */
+  :global(html.fx[data-explain]) .copy { max-height: calc(100svh - 32px); overflow-y: auto; }
   :global(.fx) .scrollOnly { display: inline; }
   :global(.fx) .toggle { display: none; }
   :global(.fx) .stack { display: block; }
@@ -179,7 +190,8 @@
 /* ---- below 1024px: always static, one column: title, intro, figure, list --------------------------- */
 @media (max-width: 1023px) {
   .copy { display: contents; }
-  .title, .intro, .layers, .figure { grid-column: 1 / -1; }
+  .title, .intro, .explainKey, .layers, .figure { grid-column: 1 / -1; }
+  .explainKey { order: 2; justify-self: start; }
   .title { order: 1; }
   .intro { order: 2; }
   .figure { order: 3; padding-top: 0; margin-right: 0; }

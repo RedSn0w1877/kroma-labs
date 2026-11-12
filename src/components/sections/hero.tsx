@@ -13,8 +13,10 @@ import styles from "./hero.module.css";
  * KL-75 that bleeds off the bottom of the first screen, its home row lined up with page columns 1–16.
  *
  * The three h1 lines are explicit and nowrap on desktop, so the box is identical before and after the
- * font swap. The red Enter key sits on line 3, the echo starts on line 2 at columns 12–16 so it can never
- * touch line 1, and the lede sentence that needs JS ("Press any key…") is gated by html.js and pointer.
+ * font swap. The echo starts on line 2 at columns 12–16 so it can never touch line 1, and the lede sentence
+ * that needs JS ("Press any key…") is gated by html.js and pointer. The red Enter key has its own row under
+ * the lede, beside the link to the sound section, so it never collides with the headline (polish round).
+ * The copyright sits as a quiet corner mark at the end of that row, on the mat, not on the product.
  */
 
 // Phones get WS-B's dedicated 1170×1100 crop of the right-hand cluster once it exists; until then the
@@ -36,18 +38,6 @@ export function Hero() {
           <span className={styles.l}>you buy it.</span>
         </h1>
 
-        <Cap
-          as="a"
-          href="#build"
-          tone="signal"
-          w={2.25}
-          top="build yours"
-          aria-label="build yours, from $640"
-          className={styles.cta}
-        >
-          from $640 ↵
-        </Cap>
-
         <div className={styles.side}>
           <div className={styles.echo} aria-hidden="true">
             <span className={styles.echoLine} data-echo>
@@ -61,14 +51,30 @@ export function Hero() {
           <Spectrum size="sm" className={`js-only ${styles.mini}`} />
         </div>
 
-        <p className={`t-body ${styles.lede}`}>
+        <p className={`t-lede ${styles.lede}`}>
           KL-75 Monolith: a 75% keyboard (every key but the number pad), machined from one block of aluminum.{" "}
           <span className="js-only kbd-only">Press any key to hear it.</span>
-          <span className="js-only touch-only">Tap any key to hear it.</span>{" "}
-          <a className="t-em" href="#sound">
+          <span className="js-only touch-only">Tap any key to hear it.</span>
+        </p>
+
+        <div className={styles.actions}>
+          <Cap
+            as="a"
+            href="#build"
+            tone="signal"
+            w={2.25}
+            top="build yours"
+            aria-label="build yours, from $640"
+            className={styles.cta}
+          >
+            from $640 ↵
+          </Cap>
+          <a className={`t-em ${styles.listen}`} href="#sound">
             hear the three switches ↓
           </a>
-        </p>
+        </div>
+
+        <p className={`t-fine ${styles.corner}`}>© 2026 HVNF Studios · do not redistribute</p>
       </div>
 
       <div className={styles.boardCrop}>

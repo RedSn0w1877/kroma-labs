@@ -74,7 +74,7 @@ export function SpecSheet() {
       <h2 id="specs-title" className={`t-h2 ${styles.title}`}>
         the numbers
       </h2>
-      <p className={`t-body ${styles.intro}`}>
+      <p className={`t-lede ${styles.intro}`}>
         Measured on the first production case. Every KL-75 ships with its own inspection card listing the measured
         flatness of the plate shelf.
       </p>

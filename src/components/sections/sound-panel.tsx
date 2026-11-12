@@ -7,7 +7,7 @@ import { Spectrum } from "@/components/board/spectrum";
 import { Cap, capClass } from "@/components/ui/keycap";
 import { setState, useKroma } from "@/lib/kroma-state";
 import { strike } from "@/lib/sound";
-import type { SwitchId } from "@/lib/switch-profiles";
+import { SWITCH_PROFILES, type SwitchId } from "@/lib/switch-profiles";
 import styles from "./soundboard.module.css";
 
 /**
@@ -21,7 +21,7 @@ import styles from "./soundboard.module.css";
  * arrive as a click with detail 0. One press, one strike, either way.
  */
 
-type Voice = { id: SwitchId; n: string; name: string; sub: string; line: string; facts: string };
+type Voice = { id: SwitchId; n: string; name: string; sub: string; line: string; travel: string };
 
 const VOICES: readonly Voice[] = [
   {
@@ -30,7 +30,7 @@ const VOICES: readonly Voice[] = [
     name: "linear",
     sub: "mineral · 45 g",
     line: "linear: smooth all the way down, with no bump. The sound is deep and rounded.",
-    facts: "45 g to press · 4.0 mm of travel · loudest at 350–600 Hz",
+    travel: "4.0 mm",
   },
   {
     id: "tactile-topaz",
@@ -38,7 +38,7 @@ const VOICES: readonly Voice[] = [
     name: "tactile",
     sub: "topaz · 62 g",
     line: "tactile: a small bump halfway down, so you feel each press.",
-    facts: "62 g to press · 3.8 mm of travel · bump at 0.6 mm · loudest at 600–1,200 Hz",
+    travel: "3.8 mm, bump at 0.6 mm",
   },
   {
     id: "silent-cream",
@@ -46,7 +46,7 @@ const VOICES: readonly Voice[] = [
     name: "silent",
     sub: "cream · 55 g",
     line: "silent: rubber dampers soften the bottom and the top of every press. Made for shared offices and late nights.",
-    facts: "55 g to press · 3.5 mm of travel · loudest at 180–350 Hz",
+    travel: "3.5 mm",
   },
 ];
 
@@ -65,6 +65,23 @@ function Hz({ hz }: { hz: number }) {
       {hz} <span className="t-keep">Hz</span>
     </>
   );
+}
+
+/**
+ * The selected switch's sheet, straight from switch-profiles.ts (the synth's own source of truth): what an
+ * enthusiast looks for first. Lube is stated only where the profile states it (the linear's stem).
+ */
+function specRows(voice: Voice): [string, string][] {
+  const p = SWITCH_PROFILES.find((profile) => profile.id === voice.id);
+  if (!p) return [];
+  return [
+    ["switch", `${p.name}, ${p.type.toLowerCase()}`],
+    ["spring", p.spring],
+    ["stem", p.stem],
+    ["housing", p.housing],
+    ["travel", voice.travel],
+    ["loudest", p.band],
+  ];
 }
 
 /** Units inside the facts lines keep their case too. */
@@ -252,8 +269,15 @@ export function SoundPanel() {
       </div>
 
       <div id="switch-panel" role="tabpanel" aria-labelledby={`switch-${voice.name}`} className={styles.panel}>
-        <p className="t-body">{voice.line}</p>
-        <p className={`t-ui ${styles.facts}`}>{withUnits(voice.facts)}</p>
+        <dl className={styles.sheet}>
+          {specRows(voice).map(([k, v]) => (
+            <div key={k}>
+              <dt className="t-ui-sm">{k}</dt>
+              <dd>{withUnits(v)}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className={`t-body explain ${styles.plain}`}>{voice.line}</p>
       </div>
 
       <div className={styles.bench}>
@@ -266,6 +290,7 @@ export function SoundPanel() {
           ))}
         </div>
         <p className={`t-ui-sm ${styles.hint}`}>press 1, 2 or 3 to switch · your own keys play while this is on screen</p>
+        <p className={`t-ui-sm ${styles.what}`}>what you hear is synthesized live in your browser from each switch&apos;s profile.</p>
         <p className="sr-only" aria-live="polite">
           {heard}
         </p>

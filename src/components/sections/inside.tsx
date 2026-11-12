@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import explode from "@/data/kl75-explode.json";
+import { ExplainKey } from "@/components/ui/explain-key";
 import { InsideStage, type StackLayer } from "./inside-stage";
 import styles from "./inside.module.css";
 
@@ -19,14 +20,18 @@ import styles from "./inside.module.css";
 /** Detent start points (fraction of the sticky phase). Layer k travels a_k → a_k + .08, then holds. */
 const A = [0.1, 0.26, 0.42, 0.58, 0.74, 0.9, 1] as const;
 
-const LAYERS: { title: string; body: ReactNode; facts?: string }[] = [
+/** Each layer leads with its spec line (facts); the plain-English body is a beginner explanation, folded
+ *  behind [explain the jargon]. Every fact comes from the spec card (spec-sheet.tsx) or switch-profiles.ts. */
+const LAYERS: { title: string; body: ReactNode; facts: string }[] = [
   {
     title: "keycaps",
     body: "82 keycaps in thick PBT, a hard, matte plastic that won't go shiny. The letters are dyed in, so they never wear off.",
+    facts: "82 × PBT, dye-sublimated legends",
   },
   {
     title: "switches",
     body: "82 switches, one under each key: a spring and a stem in a small housing. This is what clicks when you press.",
+    facts: "82 × MX-style: linear, tactile or silent",
   },
   {
     title: "plate",
@@ -36,12 +41,12 @@ const LAYERS: { title: string; body: ReactNode; facts?: string }[] = [
         sinks into foam instead of ringing through the aluminum. That&apos;s where the deep, soft sound comes from.
       </>
     ),
-    facts: "Shore 20A urethane foam / 0.9 mm compression",
+    facts: "FR4, 1.2 mm, flex-cut · 12 × Shore 20A urethane gaskets",
   },
   {
     title: "circuit board",
     body: "Sockets on the circuit board take any standard MX-style switch. Change the sound of the whole board in minutes, with no soldering iron.",
-    facts: "QMK / VIA · 1000 Hz polling · USB-C",
+    facts: "1.6 mm FR4, hot-swap · QMK / VIA · 1000 Hz · USB-C",
   },
   {
     title: "brass weight",
@@ -51,6 +56,7 @@ const LAYERS: { title: string; body: ReactNode; facts?: string }[] = [
   {
     title: "case",
     body: "It starts as a 4.6 kg block of aluminum and leaves the mill at 1.52 kg, cut to within ±0.02 mm on every face that meets another.",
+    facts: "6063-T6 billet · ±0.02 mm · Type II anodize",
   },
 ];
 
@@ -86,10 +92,11 @@ export function Inside() {
           <h2 id="inside-title" className={`t-h2 ${styles.title}`}>
             what&apos;s inside
           </h2>
-          <p className={`t-body ${styles.intro}`}>
+          <p className={`t-lede ${styles.intro}`}>
             Six layers, stacked like a sandwich.
             <span className={styles.scrollOnly}> Keep scrolling and we&apos;ll take it apart, one layer at a time.</span>
           </p>
+          <ExplainKey className={styles.explainKey} />
           <ol className={styles.layers} aria-label="the six layers, top to bottom">
             {LAYERS.map((layer, i) => (
               <li key={layer.title} data-k={i + 1} className={styles.item}>
@@ -98,8 +105,8 @@ export function Inside() {
                 </span>
                 <div className={styles.itemText}>
                   <h3 className={`t-ui-lg ${styles.itemTitle}`}>{layer.title}</h3>
-                  <p className={styles.itemBody}>{layer.body}</p>
-                  {layer.facts && <p className={`t-ui-sm ${styles.facts}`}>{layer.facts}</p>}
+                  <p className={`t-ui-sm ${styles.facts}`}>{layer.facts}</p>
+                  <p className={`explain ${styles.itemBody}`}>{layer.body}</p>
                 </div>
               </li>
             ))}

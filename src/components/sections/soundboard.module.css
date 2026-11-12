@@ -26,10 +26,18 @@
   margin: calc(var(--u) * 0.25) 0 0;
 }
 
+/* [? / explain the jargon]: right under the intro it belongs to. */
+.explainKey {
+  grid-column: 2 / 9;
+  grid-row: 3;
+  justify-self: start;
+  margin-top: calc(var(--u) * 0.25);
+}
+
 /* ---- the switch keys: oversized keycaps that latch down when chosen -------------------------------- */
 .tabs {
   grid-column: 2 / 11;
-  grid-row: 3;
+  grid-row: 4;
   display: flex;
   gap: var(--g);
   margin-top: calc(var(--u) * 0.6);
@@ -77,7 +85,7 @@
 
 .panel {
   grid-column: 2 / 9;
-  grid-row: 4;
+  grid-row: 5;
   margin-top: calc(var(--u) * 0.35);
 }
 
@@ -85,15 +93,40 @@
   margin: 0;
 }
 
-.facts {
-  margin-top: calc(var(--u) * 0.12) !important;
+/* The switch sheet: label and value lines, no rules or cells (the spec card's grammar). Values keep their
+   case (POM, PC, Hz). */
+.sheet {
+  margin: 0;
+  display: grid;
+  row-gap: 4px;
+}
+
+.sheet > div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  column-gap: 12px;
+  align-items: baseline;
+}
+
+.sheet dt {
+  color: var(--ink-soft);
+}
+
+.sheet dd {
+  margin: 0;
+  font: 560 0.875rem/1.4 var(--font-ui);
+  font-stretch: 100%;
+}
+
+.plain {
+  margin-top: calc(var(--u) * 0.18) !important;
   color: var(--ink-soft);
 }
 
 /* ---- the test bench --------------------------------------------------------------------------------- */
 .bench {
   grid-column: 11 / 17;
-  grid-row: 3 / 5;
+  grid-row: 4 / 6;
   align-self: start;
   margin-top: calc(var(--u) * 0.6);
   display: grid;
@@ -127,6 +160,10 @@
   color: var(--ink-soft);
 }
 
+.what {
+  color: var(--ink);
+}
+
 .readout {
   min-height: 1.25em;
 }
@@ -138,19 +175,19 @@
 /* ---- the meter ---------------------------------------------------------------------------------------- */
 .meter {
   grid-column: 2 / 16;
-  grid-row: 5;
+  grid-row: 6;
   margin: calc(var(--u) * 0.6) 0 0;
 }
 
 .meterCaption {
-  margin-top: calc(var(--u) * 0.1);
+  margin-top: max(calc(var(--u) * 0.1), 10px);
   color: var(--ink-soft);
 }
 
 /* ---- the type test ------------------------------------------------------------------------------------ */
 .typing {
   grid-column: 2 / 16;
-  grid-row: 6;
+  grid-row: 7;
   margin-top: calc(var(--u) * 0.6);
 }
 
@@ -227,6 +264,17 @@
   .panel {
     grid-column: 2 / 17;
   }
+  .explainKey {
+    grid-column: 2 / 17;
+    grid-row: 3;
+    margin-top: calc(var(--u) * 0.3);
+  }
+  .tabs {
+    grid-row: 4;
+  }
+  .panel {
+    grid-row: 5;
+  }
   .bench {
     grid-column: 2 / 17;
     grid-row: auto;
@@ -248,6 +296,7 @@
 @media (max-width: 639px) {
   .title,
   .intro,
+  .explainKey,
   .tabs,
   .panel,
   .bench,

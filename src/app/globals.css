@@ -85,11 +85,15 @@
   /* The ring flips with the mat (ink on yolk and chalk, cream on ink). */
   :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
-  /* In-text links stay underlined; keycap links (.cap) never are. */
+  /* In-text links stay underlined; keycap links (.cap) never are. Under a mouse the line thickens: an
+     instant step, no tween (it is seen tens of times a visit). */
   a:not(.cap) {
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    a:not(.cap):hover { text-decoration-thickness: 2px; }
   }
 
   /* Printed or PDF'd pages carry a visible watermark. */
@@ -135,10 +139,11 @@
     :root { --u: calc((100vw - 32px) / 7.884); }
     .page > * { --u: calc((100cqi - 32px) / 7.884); }
     .ug { grid-template-columns: repeat(8, calc(var(--u) - var(--g))); padding-inline: 16px; }
-    /* Room for the fixed bottom dock (site-nav). */
-    .page { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+    /* Room for the fixed bottom dock (site-nav): its 52 px keys, the 8 px it floats above the edge, the
+       skirt and cast shadow under the keys (~10 px) and a 16 px breath, plus the home-indicator inset. */
+    .page { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
     /* Focused or scrolled-to elements stop above the dock, never under it. */
-    html { scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+    html { scroll-padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
   }
 
   /* The only separator between sections: one key-gap tall, full bleed. */
@@ -152,25 +157,25 @@
      footer, not #keymap, carries it, because #keymap is a subgrid and containment would cancel that. None of
      these sections hold anything fixed or anything that paints outside its box. */
   #sound, #specs, #build, .page > footer { content-visibility: auto; }
-  #sound { contain-intrinsic-size: auto calc(var(--u) * 10); }
+  #sound { contain-intrinsic-size: auto calc(var(--u) * 11); }
   #specs { contain-intrinsic-size: auto calc(var(--u) * 20); }
-  #build { contain-intrinsic-size: auto calc(var(--u) * 17.5); }
+  #build { contain-intrinsic-size: auto calc(var(--u) * 18.5); }
   .page > footer { contain-intrinsic-size: auto calc(var(--u) * 10.5); }
   @media (max-width: 1023px) {
-    #sound { contain-intrinsic-size: auto calc(var(--u) * 18); }
-    #specs { contain-intrinsic-size: auto calc(var(--u) * 28.5); }
-    #build { contain-intrinsic-size: auto calc(var(--u) * 41.5); }
+    #sound { contain-intrinsic-size: auto calc(var(--u) * 20); }
+    #specs { contain-intrinsic-size: auto calc(var(--u) * 29); }
+    #build { contain-intrinsic-size: auto calc(var(--u) * 42); }
     .page > footer { contain-intrinsic-size: auto calc(var(--u) * 15); }
   }
   /* #inside joins them only in static mode (lite, reduced motion, no JS: no html.fx), where it is a still
      and a list with no sticky stage and no scroll timeline. It is the heaviest section to lay out. */
   html:not(.fx) #inside { content-visibility: auto; contain-intrinsic-size: auto calc(var(--u) * 11); }
-  @media (max-width: 1023px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 22); } }
-  @media (max-width: 639px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 24); } }
+  @media (max-width: 1023px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 21.5); } }
+  @media (max-width: 639px) { html:not(.fx) #inside { contain-intrinsic-size: auto calc(var(--u) * 18.5); } }
   @media (max-width: 639px) {
-    #sound { contain-intrinsic-size: auto calc(var(--u) * 21); }
-    #specs { contain-intrinsic-size: auto calc(var(--u) * 38); }
-    #build { contain-intrinsic-size: auto calc(var(--u) * 48.5); }
+    #sound { contain-intrinsic-size: auto calc(var(--u) * 22.5); }
+    #specs { contain-intrinsic-size: auto calc(var(--u) * 39); }
+    #build { contain-intrinsic-size: auto calc(var(--u) * 49.5); }
     .page > footer { contain-intrinsic-size: auto calc(var(--u) * 19.5); }
   }
 
@@ -218,6 +223,18 @@
     line-height: 1.75rem;
     max-width: 60ch;
   }
+  /* Section ledes speak in the house voice: Martian Mono at its text width, sentence case. Mono's x-height
+     is 600 units against Hanken's 493, so 15 px here reads like 18 px of the sans. 56ch of a 0.7em
+     advance is the same ~600 px measure as the sans paragraph it replaces. */
+  .t-lede {
+    font-family: var(--font-ui);
+    font-stretch: 100%;
+    font-weight: 430;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    letter-spacing: 0;
+    max-width: 56ch;
+  }
   /* Emphasis switches to mono at a matched x-height (600 vs 493 units). Never bold. */
   .t-em {
     font-family: var(--font-ui);
@@ -233,6 +250,12 @@
     letter-spacing: 0;
   }
   .t-keep { text-transform: none; }
+  /* A folded explanation arriving: a short opacity fade from where it already sits (no movement, so it
+     holds under reduced motion too). Only on reveal; folding away is instant. */
+  .explain {
+    transition: opacity 180ms cubic-bezier(0.23, 1, 0.32, 1);
+    @starting-style { opacity: 0; }
+  }
   .sr-only {
     position: absolute;
     width: 1px;
@@ -307,7 +330,15 @@
     transform: translateY(2.5px);
   }
   .cap--graphite { --face: var(--graphite); --skirt: var(--graphite-skirt); --fg: var(--cap); }
-  .cap--signal { --face: var(--signal); --skirt: var(--signal-skirt); --fg: var(--cap-text); }
+  .cap--signal {
+    --face: var(--signal); --skirt: var(--signal-skirt); --fg: var(--cap-text);
+    /* No light catch on the red: a 20% white sheen behind the top legend took it from 4.6:1 to 3.4:1.
+       The dish shade and the rim highlight (box-shadow) still model the key. */
+    background:
+      linear-gradient(to bottom, rgb(0 0 0 / var(--ps)), rgb(0 0 0 / 0) 55%),
+      linear-gradient(to bottom, rgb(0 0 0 / 0) 42%, rgb(0 0 0 / 0.07) 100%),
+      var(--face);
+  }
   /* The dimmed top legend reads 6.6:1 on cream and 6.4:1 on graphite; on the red key it would fall to
      3.1:1, so there it stays at full strength (4.62:1). */
   .cap__top { font-size: max(12px, 0.75rem); opacity: 0.72; }
@@ -316,7 +347,8 @@
   /* Legends that are not controls (keymap, ©) don't pretend to be clickable. */
   kbd.cap, span.cap { cursor: default; }
   .cap:disabled { cursor: not-allowed; opacity: 0.6; }
-  @media (hover: hover) { .cap:hover { filter: brightness(1.04); } }
+  /* Hover is a mouse affordance: a tap on a touch screen must not leave a key lit. */
+  @media (hover: hover) and (pointer: fine) { .cap:hover { filter: brightness(1.04); } }
   @media (prefers-reduced-motion: reduce) { .cap { transition: none; } }
 
   /* A small inline keycap for running text: <Kbd>k</Kbd> (keycap.tsx). Use with .cap. */
@@ -372,6 +404,9 @@ html:not(.js) .js-only { display: none !important; }
 html.js .no-js { display: none !important; }
 @media not ((hover: hover) and (pointer: fine)) { .kbd-only { display: none !important; } }
 @media (hover: hover) and (pointer: fine) { .touch-only { display: none !important; } }
+/* Beginner explanations (.explain) lead with the enthusiast spec: with JS they fold away until the
+   [explain] key is latched (html[data-explain], ExplainKey). Without JS there is no key, so they show. */
+html.js:not([data-explain]) .explain { display: none !important; }
 /* Framed by HVNF's Work carousel: only the hero, so nothing below it loads. */
 html[data-embed] main > :not(#top), html[data-embed] #keymap { display: none !important; }
 

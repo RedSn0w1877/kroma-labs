@@ -35,7 +35,7 @@ const KEYMAP: { keys: ReactNode; text: string }[] = [
         {arrow}
       </Cap>
     )),
-    text: "change the mat, in build",
+    text: "change the page colour, in build",
   },
   {
     keys: (

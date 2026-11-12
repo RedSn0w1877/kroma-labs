@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/flatten-rsc.mjs out",
     "start": "next start",
     "lint": "eslint"
   },
